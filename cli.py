@@ -61,7 +61,11 @@ def cmd_analyze(args):
     if not os.path.isfile(args.path):
         print(f"ERROR: file not found: {args.path}")
         sys.exit(1)
-    result = analyze_email(args.path, trusted_domains=args.trusted_domains or [])
+    result = analyze_email(
+        args.path,
+        trusted_domains=args.trusted_domains or [],
+        trusted_authserv_ids=args.trusted_authserv_ids or [],
+    )
     out_path = save_investigation(result)
     report_path = save_report_text(result)
     _print_result(result)
@@ -81,7 +85,11 @@ def cmd_analyze_folder(args):
     print(f"Found {len(eml_files)} .eml file(s) under {args.folder}\n")
     for path in eml_files:
         try:
-            result = analyze_email(path, trusted_domains=args.trusted_domains or [])
+            result = analyze_email(
+                path,
+                trusted_domains=args.trusted_domains or [],
+                trusted_authserv_ids=args.trusted_authserv_ids or [],
+            )
             save_investigation(result)
             save_report_text(result)
             _print_result(result)
@@ -99,7 +107,11 @@ def cmd_campaign(args):
               f"(found {len(eml_files)}).")
         return
     print(f"Found {len(eml_files)} .eml file(s) under {args.folder}\n")
-    batch = analyze_campaign(eml_files, trusted_domains=args.trusted_domains or [])
+    batch = analyze_campaign(
+        eml_files,
+        trusted_domains=args.trusted_domains or [],
+        trusted_authserv_ids=args.trusted_authserv_ids or [],
+    )
     for inv in batch["investigations"]:
         save_investigation(inv)
         save_report_text(inv)
@@ -136,16 +148,20 @@ def main():
     p_analyze.add_argument("path", help="Path to .eml file")
     p_analyze.add_argument("--trusted-domains", nargs="*", default=[], dest="trusted_domains",
                             help="Optional list of trusted domains for identity analysis")
+    p_analyze.add_argument("--trusted-authserv-ids", nargs="*", default=[], dest="trusted_authserv_ids",
+                            help="Explicit trusted Authentication-Results authserv-id allowlist")
     p_analyze.set_defaults(func=cmd_analyze)
 
     p_folder = sub.add_parser("analyze-folder", help="Analyze all .eml files in a folder")
     p_folder.add_argument("folder", help="Path to folder containing .eml files")
     p_folder.add_argument("--trusted-domains", nargs="*", default=[], dest="trusted_domains")
+    p_folder.add_argument("--trusted-authserv-ids", nargs="*", default=[], dest="trusted_authserv_ids")
     p_folder.set_defaults(func=cmd_analyze_folder)
 
     p_campaign = sub.add_parser("campaign", help="Analyze all .eml files in a folder AND correlate them into campaigns")
     p_campaign.add_argument("folder", help="Path to folder containing .eml files")
     p_campaign.add_argument("--trusted-domains", nargs="*", default=[], dest="trusted_domains")
+    p_campaign.add_argument("--trusted-authserv-ids", nargs="*", default=[], dest="trusted_authserv_ids")
     p_campaign.set_defaults(func=cmd_campaign)
 
     args = parser.parse_args()

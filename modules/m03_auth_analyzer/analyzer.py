@@ -87,13 +87,35 @@ def _interpret(mechanism: str, result: str) -> str:
                                 f"{mechanism.upper()} result '{result}': no additional interpretation available.")
 
 
-def analyze_authentication(parsed: ParsedEmail) -> dict:
+def _authserv_id(auth_header: str) -> Optional[str]:
+    """Return the Authentication-Results authserv-id before the first semicolon.
+
+    This is provenance metadata only. Identity is not inferred from the header;
+    callers must explicitly configure trusted receiver identifiers.
+    """
+    if not auth_header or ";" not in auth_header:
+        return None
+    candidate = auth_header.split(";", 1)[0].strip().lower().rstrip(".")
+    if not re.fullmatch(r"[a-z0-9](?:[a-z0-9.-]*[a-z0-9])?", candidate):
+        return None
+    return candidate
+
+
+def analyze_authentication(
+    parsed: ParsedEmail,
+    trusted_authserv_ids: Optional[List[str]] = None,
+) -> dict:
     reset_counter()
     findings: List[Finding] = []
     warnings: List[str] = []
     spf_aligned = None
     dkim_aligned = None
 
+    trusted_ids = {
+        value.strip().lower().rstrip(".")
+        for value in (trusted_authserv_ids or [])
+        if value and value.strip()
+    }
     auth_headers = list(parsed.authentication_results)
     combined = " ; ".join(auth_headers)
 
@@ -110,18 +132,24 @@ def analyze_authentication(parsed: ParsedEmail) -> dict:
                 r = dict(r)
                 r["header_index"] = idx
                 r["header_value"] = hdr
+                r["authserv_id"] = _authserv_id(hdr)
+                r["trusted_source"] = r["authserv_id"] in trusted_ids
                 return r
         return {"result": "none", "domain": None, "selector": None, "raw": None,
-                "header_index": None, "header_value": None}
+                "header_index": None, "header_value": None, "authserv_id": None,
+                "trusted_source": False}
 
     if not auth_headers:
         warnings.append("No Authentication-Results header present")
         spf = {"result": "none", "domain": None, "raw": None, "header_index": None,
-               "header_value": None, "interpretation": _interpret("spf", "none")}
+               "header_value": None, "authserv_id": None, "trusted_source": False,
+               "interpretation": _interpret("spf", "none")}
         dkim = {"result": "none", "domain": None, "selector": None, "raw": None, "header_index": None,
-                "header_value": None, "interpretation": _interpret("dkim", "none")}
+                "header_value": None, "authserv_id": None, "trusted_source": False,
+                "interpretation": _interpret("dkim", "none")}
         dmarc = {"result": "none", "policy": None, "raw": None, "header_index": None,
-                 "header_value": None, "interpretation": _interpret("dmarc", "none")}
+                 "header_value": None, "authserv_id": None, "trusted_source": False,
+                 "interpretation": _interpret("dmarc", "none")}
         findings.append(Finding(
             finding_id=_next_id(),
             finding="No Authentication-Results header found",
@@ -141,12 +169,16 @@ def analyze_authentication(parsed: ParsedEmail) -> dict:
 
         spf = {"result": spf_r["result"], "domain": spf_r["domain"], "raw": spf_r["raw"],
                "header_index": spf_r["header_index"], "header_value": spf_r["header_value"],
+               "authserv_id": spf_r["authserv_id"], "trusted_source": spf_r["trusted_source"],
                "interpretation": _interpret("spf", spf_r["result"])}
         dkim = {"result": dkim_r["result"], "domain": dkim_r["domain"], "selector": dkim_r["selector"],
                 "raw": dkim_r["raw"], "header_index": dkim_r["header_index"],
-                "header_value": dkim_r["header_value"], "interpretation": _interpret("dkim", dkim_r["result"])}
+                "header_value": dkim_r["header_value"], "authserv_id": dkim_r["authserv_id"],
+                "trusted_source": dkim_r["trusted_source"],
+                "interpretation": _interpret("dkim", dkim_r["result"])}
         dmarc = {"result": dmarc_r["result"], "policy": dmarc_policy, "raw": dmarc_r["raw"],
                  "header_index": dmarc_r["header_index"], "header_value": dmarc_r["header_value"],
+                 "authserv_id": dmarc_r["authserv_id"], "trusted_source": dmarc_r["trusted_source"],
                  "interpretation": _interpret("dmarc", dmarc_r["result"])}
 
         # --- Findings for failing/weak mechanisms ---
@@ -219,6 +251,15 @@ def analyze_authentication(parsed: ParsedEmail) -> dict:
         "spf": spf,
         "dkim": dkim,
         "dmarc": dmarc,
+        "provenance": {
+            "mode": "TRUSTED_AUTHserv_ID_ALLOWLIST" if trusted_ids else "REPORTED_UNVERIFIED",
+            "trusted_authserv_ids": sorted(trusted_ids),
+            "warning": (
+                "Authentication results are reported by message headers and were not "
+                "independently verified. Only results whose authserv-id matches the "
+                "explicit allowlist are marked trusted_source=true."
+            ),
+        },
         "alignment": {
             "spf_aligned": spf_aligned,
             "dkim_aligned": dkim_aligned,
