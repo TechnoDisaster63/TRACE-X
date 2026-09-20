@@ -45,9 +45,11 @@ def _digest(value: Any) -> str:
 
 def _timestamp(value: str) -> str:
     try:
+        if not isinstance(value, str):
+            raise TypeError("timestamp is not a string")
         parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
-    except (TypeError, ValueError) as exc:
-        raise LifecycleError("timestamp must be ISO-8601") from exc
+    except (AttributeError, TypeError, ValueError) as exc:
+        raise LifecycleError("timestamp must be an ISO-8601 string") from exc
     if parsed.tzinfo is None:
         raise LifecycleError("timestamp must include a timezone")
     return parsed.astimezone(timezone.utc).isoformat()
@@ -220,6 +222,15 @@ def verify_lifecycle_integrity(
             raise LifecycleError("audit event hash link is invalid")
         if event.from_state != expected_from:
             raise LifecycleError("audit event state chain is invalid")
+        if event.to_state not in STATES:
+            raise LifecycleError("audit event contains an unsupported state")
+        if event.from_state is None:
+            if index != 1 or event.to_state != "PENDING":
+                raise LifecycleError("audit lifecycle must begin in PENDING")
+        elif event.to_state not in TRANSITIONS.get(event.from_state, set()):
+            raise LifecycleError(
+                f"audit event contains illegal transition: {event.from_state} -> {event.to_state}"
+            )
         payload = {
             "sequence": event.sequence, "from_state": event.from_state,
             "to_state": event.to_state, "actor": event.actor,
