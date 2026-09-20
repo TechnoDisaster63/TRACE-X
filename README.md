@@ -1,6 +1,6 @@
 # TRACE-X — Email Forensic Investigation & Campaign Intelligence Platform
 
-**Status: PROTOTYPE (M01-M13 advisory-only + M16 audit model).** This is a Python-only core analysis
+**Status: PROTOTYPE (M01-M14 advisory-only + M16 audit model).** This is a Python-only core analysis
 engine. It has no frontend, no API server, and no database. It is not a
 production security product and does not constitute legal or regulatory
 proof of anything.
@@ -31,6 +31,7 @@ multi-email campaign correlation, a structured investigation report, and an advi
 | M11 | Prevention Recommendation Engine — typed, explainable, non-executable advisory output |
 | M12 | Trust and Policy Engine — typed, versioned, deterministic advisory policy decisions |
 | M13 | IOC Export — deterministic offline TRACE-X JSON/CSV review aids; never automated enforcement |
+| M14 | Analyst Feedback — immutable offline decision records and review-only tuning summaries |
 | M16 | Prevention audit model — immutable recommendation linkage and validated offline lifecycle records |
 
 **Not yet built / explicitly out of scope for this build:** persistent policy administration,
@@ -126,7 +127,7 @@ or, with the virtual environment active:
 python -m pytest tests\ -v
 ```
 
-As of this build: **262 real, executed tests, all passing** — unit tests
+As of this build: **284 real, executed tests, all passing** — unit tests
 for M01-M10, dedicated investigation-ID regression tests (including
 subprocess-level reproduction of the original ID-collision bug), dedicated
 campaign-correlation tests, dedicated M08 double-counting/correlation
@@ -152,6 +153,7 @@ trace-x/
 │   ├── m11_prevention_recommendation/
 │   ├── m12_trust_policy/
 │   ├── m13_ioc_export/
+│   ├── m14_analyst_feedback/
 │   └── m16_prevention_audit/
 ├── core/
 │   ├── pipeline.py       (wires M01->M12; analyze_email + analyze_campaign)

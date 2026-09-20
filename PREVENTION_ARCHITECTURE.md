@@ -198,3 +198,23 @@ this prototype has no reputation, ownership, allowlist, scope, policy, or
 false-positive control sufficient to justify automated blocking. The exporter
 makes no network call and performs no SIEM, firewall, gateway, mailbox, or
 other external action.
+
+## M14 analyst feedback - IMPLEMENTED (immutable offline records)
+
+`modules/m14_analyst_feedback/engine.py` records accepted/rejected action,
+false-positive, false-negative, trusted-sender, confirmed-suspicious-sender,
+threat-escalated, benign-business-email, and needs-more-evidence decisions.
+Each frozen record includes actor/role, timezone-aware time, reason, source
+investigation/recommendation IDs, evidence IDs, policy and rule versions,
+details, SHA-256 links to the original evidence and full recommendation, and a
+content-derived record ID/hash.
+
+Feedback never edits the original evidence or recommendation. Integrity checks
+detect changes to either original or the feedback record. Summaries provide
+counts by decision/rule/policy version and human review flags only. They do not
+change rules, policies, thresholds, or models; they do not train ML; they do
+not execute actions.
+
+No persistence is included. Safe identity, authorization, storage, locking,
+retention, and privacy controls must be designed before records are stored or
+shared. This is a rule-tuning review aid, not adaptive learning.
