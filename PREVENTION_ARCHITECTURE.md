@@ -218,3 +218,13 @@ not execute actions.
 No persistence is included. Safe identity, authorization, storage, locking,
 retention, and privacy controls must be designed before records are stored or
 shared. This is a rule-tuning review aid, not adaptive learning.
+
+### M14 nested immutability hardening
+
+Feedback construction deep-copies details into recursively immutable canonical
+containers: mappings become read-only mapping proxies, and lists/tuples/sets
+become tuples. Unsupported object types fail closed. The record therefore
+cannot be changed through a retained input reference or nested in-place
+mutation. `to_dict()` returns detached ordinary dictionaries/lists so existing
+JSON serialization remains usable without exposing the record's internals.
+Integrity hashes use the same thawed canonical representation.
