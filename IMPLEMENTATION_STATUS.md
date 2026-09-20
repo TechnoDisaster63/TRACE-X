@@ -40,3 +40,20 @@ Date: 2026-09-20
 - ML classification or learning
 - independent authentication verification
 - production or legal-forensics claims
+
+## M12 update - IMPLEMENTED
+
+- typed and versioned trust policies
+- strict deterministic validation
+- exact all-condition matching over forensic context signals
+- priority, stable tie-breaking, explicit equal-priority conflicts
+- expiration and disabled-policy handling
+- allow-versus-risk safeguard
+- explainable advisory-only policy decisions attached to M11
+
+## M12 update - NOT YET IMPLEMENTED
+
+- persistent policy store or audit history
+- authenticated policy administration
+- exceptions and department/recipient enrichment
+- policy execution or live control adapters

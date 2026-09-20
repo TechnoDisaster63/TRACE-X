@@ -88,3 +88,34 @@ A future M12 will own versioned policy documents, precedence, trusted identities
 ## NOT SUPPORTED
 
 Automated quarantine/block/delete, live mailbox control, live SIEM/SOAR/SEG integration, external reputation lookup, ML prioritization, calibrated probabilities, and production enforcement are not supported.
+
+## M12 Trust and Policy Engine - IMPLEMENTED (minimal safe slice)
+
+`modules/m12_trust_policy/engine.py` provides a frozen, versioned
+`TrustPolicy`, strict validation, exact all-condition matching, ISO-8601
+expiration, deterministic priority and policy-ID ordering, and an explainable
+decision record.
+
+Current context signals are derived only from structured pipeline output:
+`risk:<LEVEL>`, `threat:<CLASS>`, and evidence source, category, module, and
+severity labels. Conditions are exact strings; M12 does not run arbitrary
+expressions or code.
+
+Safe precedence:
+
+1. Higher numeric priority wins.
+2. At equal priority, a conflict between actions resolves to the stronger
+   review action and is recorded explicitly.
+3. A policy may strengthen the base forensic recommendation.
+4. An allow policy cannot silently weaken an existing forensic recommendation;
+   the base result is preserved and the conflict requires review.
+5. Disabled, expired, or partially matched policies do not apply.
+6. No policies means the base M11 recommendation remains unchanged.
+
+M12 supports only `RECOMMEND` effects. Every decision is `ADVISORY_ONLY`, and
+`executable` is always false. Policies cannot quarantine, block, delete, send,
+or mutate external state.
+
+Not yet implemented: file-backed policy loading, signatures, access control,
+persistent audit history, exceptions, policy migration, department/recipient
+attributes, UI/API management, or live enforcement adapters.
