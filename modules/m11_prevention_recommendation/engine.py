@@ -13,6 +13,7 @@ from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
 
 from modules.m12_trust_policy.engine import evaluate_policies
+from modules.m11_prevention_recommendation.bec import assess_bec
 
 VALID_ACTIONS = {
     "ALLOW_WITH_NOTICE",
@@ -174,6 +175,7 @@ def generate_prevention_recommendation(
     risk: dict,
     threat_graph: dict,
     policies: Optional[List[dict]] = None,
+    parsed_email: Optional[dict] = None,
 ) -> dict:
     """Return one typed, explainable, non-executable prevention recommendation."""
     evidence_bundle = evidence_bundle or {}
@@ -199,6 +201,7 @@ def generate_prevention_recommendation(
             "Reported authentication evidence from an untrusted source may support analyst review but cannot support automated prevention action."
         )
 
+    bec_assessment = assess_bec(parsed_email or {}, evidence_bundle, threat_graph)
     policy_decision = evaluate_policies(
         policies or [], risk, threat_graph, evidence_bundle, selected["action"],
         base_requires_approval=selected["approval"],
@@ -229,10 +232,14 @@ def generate_prevention_recommendation(
         requires_human_approval=selected["approval"],
         created_at=datetime.now(timezone.utc).isoformat(),
         explanation=_explanations(risk_factors),
-        counterfactuals=_counterfactuals(risk, threat_class),
+        counterfactuals=list(dict.fromkeys([
+            *_counterfactuals(risk, threat_class),
+            *bec_assessment["counterfactuals"],
+        ])),
         limitations=limitations,
         executable=False,
     )
     result = recommendation.to_dict()
     result["policy_decision"] = policy_decision
+    result["bec_assessment"] = bec_assessment
     return result
