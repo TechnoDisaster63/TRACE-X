@@ -115,6 +115,7 @@ def generate_report(
     received_result: dict = None,
     auth_result: dict = None,
     campaign: dict = None,
+    prevention: dict = None,
 ) -> dict:
     """Build the full TRACE-X report dict from real pipeline outputs.
     Never raises - missing/malformed sections degrade gracefully.
@@ -307,6 +308,10 @@ def generate_report(
         "received_chain": received_chain,
         "indicators": indicators,
         "campaign_relationships": campaign_relationships,
+        "prevention_assessment": prevention or {
+            "status": "NOT_GENERATED",
+            "limitations": ["M11 prevention recommendation was not supplied to this report."],
+        },
         "recommendations": recommendations,
         "limitations": limitations,
         "analyst_notes": analyst_notes,
@@ -364,6 +369,24 @@ def to_text(report: dict) -> str:
             lines.append("    " + textwrap.fill(p.get("description", ""), width=56, subsequent_indent="    "))
     else:
         lines.append("  No threat patterns matched.")
+    lines.append("")
+
+    lines += [thin, "PREVENTION ASSESSMENT", thin]
+    prevention = report.get("prevention_assessment", {})
+    lines.append(f"Status                  : {prevention.get('status')}")
+    lines.append(f"Recommendation ID       : {prevention.get('recommendation_id')}")
+    lines.append(f"Recommended action      : {prevention.get('recommended_action')}")
+    lines.append(f"Action mode             : {prevention.get('action_mode')}")
+    lines.append(f"Human approval required : {prevention.get('requires_human_approval')}")
+    lines.append(f"Executable              : {prevention.get('executable', False)}")
+    if prevention.get("reason"):
+        lines.append("Reason: " + textwrap.fill(prevention.get("reason", ""), width=52, subsequent_indent="        "))
+    if prevention.get("evidence_ids"):
+        lines.append(f"Evidence references     : {', '.join(prevention.get('evidence_ids', []))}")
+    if prevention.get("counterfactuals"):
+        lines.append("Counterfactuals:")
+        for item in prevention.get("counterfactuals", []):
+            lines.append("  - " + textwrap.fill(item, width=56, subsequent_indent="    "))
     lines.append("")
 
     lines += [thin, "RECOMMENDATIONS", thin]
