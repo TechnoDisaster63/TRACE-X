@@ -23,6 +23,7 @@ from modules.m07_evidence_engine.engine import build_evidence_bundle
 from modules.m08_risk_engine.engine import compute_risk
 from modules.m09_threat_graph.engine import build_threat_graph, correlate_campaign
 from modules.m10_report_generator.engine import generate_report, to_text
+from modules.m11_prevention_recommendation.engine import generate_prevention_recommendation
 
 logger = get_logger("core.pipeline")
 
@@ -56,6 +57,9 @@ def analyze_email(
     )
     risk_result = compute_risk(evidence_bundle)
     threat_graph = build_threat_graph(evidence_bundle, risk_result, email_id=parsed.from_)
+    prevention = generate_prevention_recommendation(
+        investigation_id, evidence_bundle, risk_result, threat_graph
+    )
     report = generate_report(
         parsed.to_dict(), evidence_bundle, risk_result, threat_graph,
         investigation_id=investigation_id,
@@ -63,6 +67,7 @@ def analyze_email(
         identity_result=identity_result,
         received_result=received_result,
         auth_result=auth_result,
+        prevention=prevention,
     )
 
     elapsed = time.time() - start
@@ -87,6 +92,7 @@ def analyze_email(
         "risk": risk_result,
         "threat_graph": threat_graph,
         "report": report,
+        "prevention": prevention,
         "processing_time_seconds": round(elapsed, 4),
     }
     return result

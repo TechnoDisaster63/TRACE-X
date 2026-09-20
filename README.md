@@ -1,6 +1,6 @@
 # TRACE-X — Email Forensic Investigation & Campaign Intelligence Platform
 
-**Status: PROTOTYPE (M01-M10).** This is a Python-only core analysis
+**Status: PROTOTYPE (M01-M11 advisory-only).** This is a Python-only core analysis
 engine. It has no frontend, no API server, and no database. It is not a
 production security product and does not constitute legal or regulatory
 proof of anything.
@@ -12,9 +12,9 @@ rule-based forensic analysis: header anomalies, SPF/DKIM/DMARC
 interpretation, sender-identity impersonation checks, mail-routing
 reconstruction, static URL analysis, a normalized/de-duplicated evidence
 bundle, a transparent risk score, a threat-pattern classification, optional
-multi-email campaign correlation, and a structured investigation report.
+multi-email campaign correlation, a structured investigation report, and an advisory-only explainable prevention recommendation.
 
-## 2. Current Prototype Scope (M01-M10)
+## 2. Current Prototype Scope (M01-M11)
 
 | Module | Purpose |
 |---|---|
@@ -28,9 +28,11 @@ multi-email campaign correlation, and a structured investigation report.
 | M08 | Risk Engine — deterministic, correlation-aware score (0-100) and risk level |
 | M09 | Threat Graph — per-email node/edge graph, threat-pattern classification, **and multi-email campaign correlation** |
 | M10 | Report Generator — full investigation report (JSON + human-readable text) |
+| M11 | Prevention Recommendation Engine — typed, explainable, non-executable advisory output |
 
-**Not yet built / explicitly out of scope for this build:** M11
-(RiskClassifier ML), frontend, API server, database, cloud services.
+**Not yet built / explicitly out of scope for this build:** M12 policy engine,
+action execution/adapters, frontend, API server, database, cloud services, and
+machine-learning classification. M11 is rule-based and advisory-only.
 
 ## 3. Requirements
 
@@ -85,7 +87,7 @@ python cli.py campaign <path\to\folder> [--trusted-domains a.com b.com]
 ```
 
 - `analyze` / `analyze-folder` — analyze one or every `.eml` in a folder
-  independently. Each run prints a summary (Investigation ID, Risk
+  independently. Each run writes a structured M11 prevention assessment into JSON/text output and prints a summary (Investigation ID, Risk
   Level/Score, Threat Classification, Top Findings, Evidence Count,
   Confidence) and writes the full JSON result to
   `output\<Investigation-ID>.json` plus a human-readable text report to
@@ -106,7 +108,7 @@ trust must be supplied explicitly by the caller.
 
 Every investigation gets a unique `TX-XXXXXX` ID. This ID is generated
 **once** per `analyze_email()` call and propagates unchanged through every
-module (M01-M10) and into both saved output files. IDs persist across
+module (M01-M11) and into both saved output files. IDs persist across
 separate CLI process invocations (via a small counter file in `output\`),
 so running the CLI multiple times — or against multiple files — never
 reuses an ID.
@@ -121,7 +123,7 @@ or, with the virtual environment active:
 python -m pytest tests\ -v
 ```
 
-As of this build: **159 real, executed tests, all passing** — unit tests
+As of this build: **180 real, executed tests, all passing** — unit tests
 for M01-M10, dedicated investigation-ID regression tests (including
 subprocess-level reproduction of the original ID-collision bug), dedicated
 campaign-correlation tests, dedicated M08 double-counting/correlation
@@ -143,7 +145,8 @@ trace-x/
 │   ├── m07_evidence_engine/
 │   ├── m08_risk_engine/
 │   ├── m09_threat_graph/        (threat graph + campaign correlation)
-│   └── m10_report_generator/
+│   ├── m10_report_generator/
+│   └── m11_prevention_recommendation/
 ├── core/
 │   ├── pipeline.py       (wires M01->M10; analyze_email + analyze_campaign)
 │   ├── models.py
