@@ -1,0 +1,12 @@
+From: "Microsoft Account Team" <account-security@micros0ft-online.com>
+To: user@example.com
+Subject: Unusual sign-in activity detected
+Date: Fri, 09 Oct 2026 05:45:00 +0000
+Message-ID: <ms001@micros0ft-online.com>
+Reply-To: account-security@micros0ft-online.com
+Return-Path: <bounce@micros0ft-online.com>
+Received: from mail.micros0ft-online.com (198.51.100.201) by mx.example.com; Fri, 09 Oct 2026 05:44:50 +0000
+Authentication-Results: mx.example.com; spf=fail; dkim=none; dmarc=fail
+Content-Type: text/plain; charset="utf-8"
+
+We noticed a new sign-in to your Microsoft account. If this wasn't you, secure your account at http://micros0ft-online.com/secure-login

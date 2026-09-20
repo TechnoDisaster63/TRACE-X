@@ -1,0 +1,11 @@
+From: ceo@company.com
+To: finance@company.com
+Subject: Re: Payment approval
+Date: Sat, 10 Oct 2026 11:11:00 +0000
+Message-ID: <auth001@company.com>
+Received: from spoofed-relay (unknown [203.0.113.99]) by mx.company.com; Sat, 10 Oct 2026 11:10:55 +0000
+Authentication-Results: mx.company.com; spf=pass (forged, injected by sender) smtp.mailfrom=company.com; dkim=pass header.d=company.com; dmarc=pass
+X-Authentication-Results: this-header-is-fake; spf=pass; dkim=pass; dmarc=pass
+Content-Type: text/plain; charset="utf-8"
+
+Please approve the attached payment today.

@@ -1,0 +1,8 @@
+# TRACE-X — M01-M10 Prototype Requirements
+#
+# Modules M01-M10 use ONLY the Python standard library
+# (email, hashlib, re, html.parser, urllib.parse, dataclasses, argparse,
+# json, glob, pathlib, logging, uuid, textwrap, datetime, hashlib).
+#
+# pytest is required to run the test suite.
+pytest>=7.4,<10

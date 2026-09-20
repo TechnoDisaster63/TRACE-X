@@ -1,0 +1,13 @@
+From: sender@example.com
+To: alice@example.com, bob@example.com, carol@example.com
+Cc: dave@example.com
+Subject: Team update
+Date: Thu, 15 Oct 2026 15:00:00 +0000
+Message-ID: <multi001@example.com>
+Received: from mx2.example.com (198.51.100.2) by mx1.example.com; Thu, 15 Oct 2026 14:59:55 +0000
+Received: from relay.example.com (198.51.100.3) by mx2.example.com; Thu, 15 Oct 2026 14:59:50 +0000
+Received: from origin.example.com (192.0.2.1) by relay.example.com; Thu, 15 Oct 2026 14:59:40 +0000
+Authentication-Results: mx1.example.com; spf=pass; dkim=pass; dmarc=pass
+Content-Type: text/plain; charset="utf-8"
+
+Hi team, here's this week's update.

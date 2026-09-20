@@ -1,0 +1,17 @@
+From: "John Carter (CEO)" <john.carter@company.com>
+To: finance@company.com
+Subject: Urgent wire transfer
+Date: Wed, 07 Oct 2026 14:20:00 +0000
+Message-ID: <bec001@company-support.com>
+Reply-To: john.carter@company-support.com
+Return-Path: <bounce@company-support.com>
+Received: from smtp.external-relay.net (198.51.100.77) by mx.company.com; Wed, 07 Oct 2026 14:19:40 +0000
+Authentication-Results: mx.company.com; spf=softfail smtp.mailfrom=company-support.com; dkim=none; dmarc=fail header.from=company.com
+Content-Type: text/plain; charset="utf-8"
+
+Hi,
+
+I need you to process an urgent wire transfer of $48,500 to a new vendor today. This is time-sensitive, please handle quietly and confirm once done. Do not call me, I'm in meetings all day.
+
+John Carter
+CEO

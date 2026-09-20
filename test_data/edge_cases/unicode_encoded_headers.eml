@@ -1,0 +1,10 @@
+From: =?UTF-8?B?Sm9zw6kgUMOpcmV6?= <jose@example.com>
+To: recipient@example.com
+Subject: =?UTF-8?B?SG9sYSDCoSBUaWVuZXMgdW4gbWVuc2FqZSE=?=
+Date: Wed, 14 Oct 2026 12:00:00 +0000
+Message-ID: <unicode001@example.com>
+Received: from mail.example.com (192.0.2.9) by mx.example.com; Wed, 14 Oct 2026 11:59:50 +0000
+Authentication-Results: mx.example.com; spf=pass; dkim=pass; dmarc=pass
+Content-Type: text/plain; charset="utf-8"
+
+Hola, este es un mensaje de prueba con acentos: café, niño, corazón.

@@ -1,0 +1,22 @@
+From: hr@company.com
+To: employee@company.com
+Subject: Your updated policy document
+Date: Tue, 13 Oct 2026 09:00:00 +0000
+Message-ID: <att001@company.com>
+Received: from mail.company.com (192.0.2.5) by mx.company.com; Tue, 13 Oct 2026 08:59:50 +0000
+Authentication-Results: mx.company.com; spf=pass; dkim=pass; dmarc=pass
+Content-Type: multipart/mixed; boundary="BOUNDARY123"
+
+--BOUNDARY123
+Content-Type: text/plain; charset="utf-8"
+
+Please find the attached policy document.
+
+--BOUNDARY123
+Content-Type: application/pdf; name="policy.pdf"
+Content-Disposition: attachment; filename="policy.pdf"
+Content-Transfer-Encoding: base64
+
+JVBERi0xLjQKJcOkw7zDtsO4CjIgMCBvYmoKPDwvTGVuZ3RoIDMgMCBSL0ZpbHRlci9GbGF0ZURl
+Y29kZT4+CnN0cmVhbQp4nDPQM1Qo5ypUMFAwALGMLXUtDBQ0DIA0lyGXi4KJgqGxqQVI3EDBSKGm
+--BOUNDARY123--

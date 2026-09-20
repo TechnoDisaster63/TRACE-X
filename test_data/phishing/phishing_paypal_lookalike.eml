@@ -1,0 +1,16 @@
+From: "PayPal Security" <service@paypa1-verify.com>
+To: victim@example.com
+Subject: Your account has been limited - Action Required
+Date: Tue, 06 Oct 2026 03:14:00 +0000
+Message-ID: <8f3ac2@paypa1-verify.com>
+Reply-To: recover@paypa1-verify.com
+Return-Path: <bounce@paypa1-verify.com>
+Received: from unknown (203.0.113.55) by mx.example.com; Tue, 06 Oct 2026 03:13:55 +0000
+Authentication-Results: mx.example.com; spf=fail smtp.mailfrom=paypa1-verify.com; dkim=none; dmarc=fail header.from=paypa1-verify.com
+Content-Type: text/html; charset="utf-8"
+
+<html><body>
+<p>Dear Customer,</p>
+<p>We detected unusual activity. Please <a href="http://paypa1-verify.com.secure-login.info/verify?acct=1234&token=xyz">verify your account</a> immediately or it will be suspended.</p>
+<p>PayPal Security Team</p>
+</body></html>

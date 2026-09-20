@@ -1,0 +1,18 @@
+From: "Acme Newsletter" <news@acme-corp.example>
+To: alice@example.com
+Subject: Your October Newsletter
+Date: Mon, 05 Oct 2026 09:00:00 +0000
+Message-ID: <news-2026-10-05@acme-corp.example>
+Reply-To: news@acme-corp.example
+Return-Path: <news@acme-corp.example>
+Received: from mail.acme-corp.example (mail.acme-corp.example [198.51.100.10])
+    by mx.example.com with ESMTP id abc123; Mon, 05 Oct 2026 08:59:50 +0000
+Authentication-Results: mx.example.com; spf=pass smtp.mailfrom=acme-corp.example; dkim=pass header.d=acme-corp.example; dmarc=pass header.from=acme-corp.example
+Content-Type: text/plain; charset="utf-8"
+
+Hi Alice,
+
+Here's what's new at Acme this month. Visit https://acme-corp.example/news for details.
+
+Thanks,
+Acme Team

@@ -1,0 +1,8 @@
+From: broken@example
+To: someone
+Subject
+Date: not-a-date
+This is not a properly formed header block
+Content-Type: text/plain
+
+Body text with no proper headers above it.

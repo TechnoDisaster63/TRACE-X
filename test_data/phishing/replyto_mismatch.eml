@@ -1,0 +1,12 @@
+From: billing@trustedvendor.com
+To: ap@example.com
+Subject: Updated invoice - payment details changed
+Date: Thu, 08 Oct 2026 10:00:00 +0000
+Message-ID: <inv-2026-1008@trustedvendor.com>
+Reply-To: payments@trustedvendor-billing.net
+Return-Path: <bounce@trustedvendor-billing.net>
+Received: from mail.trustedvendor-billing.net (192.0.2.15) by mx.example.com; Thu, 08 Oct 2026 09:59:50 +0000
+Authentication-Results: mx.example.com; spf=neutral smtp.mailfrom=trustedvendor-billing.net; dkim=fail; dmarc=none
+Content-Type: text/plain; charset="utf-8"
+
+Please note our banking details have changed. Reply to this email to confirm receipt before processing the attached invoice.

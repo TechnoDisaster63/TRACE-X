@@ -1,0 +1,13 @@
+From: alerts@bank-secure-notice.com
+To: user@example.com
+Subject: Security alert: verify your login
+Date: Sun, 11 Oct 2026 08:30:00 +0000
+Message-ID: <sec001@bank-secure-notice.com>
+Reply-To: alerts@bank-secure-notice.com
+Return-Path: <bounce@bank-secure-notice.com>
+Received: from mail.bank-secure-notice.com (203.0.113.201) by mx.example.com; Sun, 11 Oct 2026 08:29:50 +0000
+Authentication-Results: mx.example.com; spf=fail; dkim=none; dmarc=fail
+Content-Type: text/plain; charset="utf-8"
+
+Verify your login now: http://203.0.113.44/secure/verify-account-login-confirm
+Or use this short link: https://bit.ly/3xVerifyNow

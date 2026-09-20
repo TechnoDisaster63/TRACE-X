@@ -1,0 +1,9 @@
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.git/
+output/*.json
+output/.tx_investigation_counter*
+output/.tx_investigation_counter*.lock
+reports/*.txt
