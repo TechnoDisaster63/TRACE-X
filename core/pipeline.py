@@ -27,7 +27,11 @@ from modules.m10_report_generator.engine import generate_report, to_text
 logger = get_logger("core.pipeline")
 
 
-def analyze_email(path: str, trusted_domains: Optional[List[str]] = None) -> dict:
+def analyze_email(
+    path: str,
+    trusted_domains: Optional[List[str]] = None,
+    trusted_authserv_ids: Optional[List[str]] = None,
+) -> dict:
     """
     Run the full M01-M10 pipeline against a single .eml file.
     Returns a single JSON-serializable investigation result.
@@ -42,7 +46,7 @@ def analyze_email(path: str, trusted_domains: Optional[List[str]] = None) -> dic
     parsed = parse_eml(path)
 
     header_result = analyze_headers(parsed)
-    auth_result = analyze_authentication(parsed)
+    auth_result = analyze_authentication(parsed, trusted_authserv_ids=trusted_authserv_ids)
     identity_result = analyze_identity(parsed, trusted_domains=trusted_domains)
     received_result = analyze_received_chain(parsed)
     url_result = analyze_urls(parsed)
@@ -105,7 +109,11 @@ def save_report_text(result: dict, reports_dir: str = REPORTS_DIR) -> str:
     return out_path
 
 
-def analyze_campaign(paths: List[str], trusted_domains: Optional[List[str]] = None) -> dict:
+def analyze_campaign(
+    paths: List[str],
+    trusted_domains: Optional[List[str]] = None,
+    trusted_authserv_ids: Optional[List[str]] = None,
+) -> dict:
     """
     Analyze multiple .eml files individually (each gets its own unique
     investigation_id, per analyze_email()) and then run M09 campaign
@@ -121,7 +129,14 @@ def analyze_campaign(paths: List[str], trusted_domains: Optional[List[str]] = No
           "campaign_correlation": <correlate_campaign() result>,
         }
     """
-    investigations = [analyze_email(p, trusted_domains=trusted_domains) for p in paths]
+    investigations = [
+        analyze_email(
+            p,
+            trusted_domains=trusted_domains,
+            trusted_authserv_ids=trusted_authserv_ids,
+        )
+        for p in paths
+    ]
     correlation = correlate_campaign(investigations)
 
     campaign_by_investigation_id: Dict[str, dict] = {}

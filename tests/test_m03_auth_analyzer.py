@@ -68,3 +68,36 @@ def test_findings_have_required_fields():
     for f in r["findings"]:
         for key in ("finding_id", "finding", "severity", "evidence", "source", "confidence"):
             assert key in f and f[key]
+
+
+def test_reported_authentication_is_unverified_by_default():
+    parsed = parse_eml(p("legitimate/legit_newsletter.eml"))
+    result = analyze_authentication(parsed)
+    assert result["provenance"]["mode"] == "REPORTED_UNVERIFIED"
+    assert result["spf"]["result"] == "pass"
+    assert result["spf"]["trusted_source"] is False
+    assert "not independently verified" in result["provenance"]["warning"]
+
+
+def test_explicit_authserv_allowlist_marks_matching_header_trusted():
+    parsed = parse_eml(p("legitimate/legit_newsletter.eml"))
+    reported_id = parsed.authentication_results[0].split(";", 1)[0].strip()
+    result = analyze_authentication(parsed, trusted_authserv_ids=[reported_id.upper() + "."])
+    assert result["provenance"]["mode"] == "TRUSTED_AUTHserv_ID_ALLOWLIST"
+    assert result["spf"]["authserv_id"] == reported_id.lower().rstrip(".")
+    assert result["spf"]["trusted_source"] is True
+
+
+def test_nonmatching_authserv_id_remains_untrusted():
+    parsed = parse_eml(p("legitimate/legit_newsletter.eml"))
+    result = analyze_authentication(parsed, trusted_authserv_ids=["trusted.receiver.example"])
+    assert result["dkim"]["result"] == "pass"
+    assert result["dkim"]["trusted_source"] is False
+
+
+def test_absent_mechanism_has_no_trusted_source():
+    parsed = parse_eml(p("malformed/malformed_truncated.eml"))
+    result = analyze_authentication(parsed, trusted_authserv_ids=["mx.example"])
+    assert result["dmarc"]["result"] == "none"
+    assert result["dmarc"]["authserv_id"] is None
+    assert result["dmarc"]["trusted_source"] is False
