@@ -124,7 +124,7 @@ or, with the virtual environment active:
 python -m pytest tests\ -v
 ```
 
-As of this build: **206 real, executed tests, all passing** — unit tests
+As of this build: **214 real, executed tests, all passing** — unit tests
 for M01-M10, dedicated investigation-ID regression tests (including
 subprocess-level reproduction of the original ID-collision bug), dedicated
 campaign-correlation tests, dedicated M08 double-counting/correlation
