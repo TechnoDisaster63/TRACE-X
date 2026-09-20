@@ -139,3 +139,27 @@ message, initiates no payment, and performs no hold, quarantine, or block.
 Relationship-history analysis is not implemented because this offline build
 has no mailbox history or persistent trust graph. The assessment states that
 limit instead of inventing relationship evidence.
+
+## M16 prevention audit/action lifecycle - IMPLEMENTED (typed model only)
+
+`modules/m16_prevention_audit/lifecycle.py` implements an immutable offline
+lifecycle for a non-executable M11 recommendation. Creation stores the original
+recommendation SHA-256 and identity. Each legal transition returns a new frozen
+object and appends a hash-linked event containing actor, actor role, UTC
+timestamp, reason, details, and prior event hash.
+
+States: `PENDING`, `REVIEW_REQUIRED`, `APPROVED`, `REJECTED`, `EXECUTED`,
+`FAILED`, `EXPIRED`, `REVERSED`, and `CANCELLED`. A transition table rejects
+illegal and terminal-state changes. `EXECUTED` and `FAILED` can only record an
+outcome reported by an `ADAPTER`; this model never calls one or executes an
+action. Executed records require an external reference. Reversal requires that
+the lifecycle was marked reversible and that a reversal reference is recorded.
+
+Integrity verification checks sequence, state chain, hash links, event hashes,
+event IDs, monotonic timestamps, current state, and optional linkage to the
+original recommendation. This is tamper-evident application logic, not a legal
+chain-of-custody or immutable storage claim.
+
+No file persistence is included in this slice. Safe storage, locking, access
+control, retention, signatures, encrypted records, and multi-process
+concurrency need a separate design before persistence is added.
