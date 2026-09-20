@@ -134,3 +134,17 @@ Date: 2026-09-20
 - Hackathon demo: **READY**
 - Production: **NOT READY**
 - Live integration: **NOT IMPLEMENTED**; offline schema/export preparation only
+
+## CI validation update - IMPLEMENTED
+
+- GitHub Actions checks pull requests and pushes to `main`
+- exact CPython 3.11 test dependencies are version- and SHA-256-locked
+- dependency consistency, source/test compilation, and the full pytest suite are required
+- third-party actions are pinned to full commit SHAs
+- workflow permissions are read-only and execution is time-bounded
+
+## CI validation update - NOT SUPPORTED
+
+- CI is not a vulnerability scan, penetration test, production certification, or compliance claim
+- no paid service, repository secret, live mailbox, network runtime analysis, Windows runner, or external integration is used
+- branch protection remains a repository-owner setting; the workflow itself does not claim it is enabled

@@ -227,3 +227,18 @@ trace-x/
 ## Audit hardening applied (2026-09-20)
 
 This audited package removes the bundled virtual environment, caches, and prior generated reports. It enforces documented parser collection limits, rejects oversized byte input, prevents silent report overwrite, recovers the investigation counter from existing outputs, supports output paths through `TRACE_X_OUTPUT_DIR` / `TRACE_X_REPORTS_DIR`, and fixes exact shortener-domain matching. See `AUDIT_REPORT.md` for remaining limitations.
+
+## Continuous integration
+
+GitHub Actions now runs a bounded validation job for every pull request to
+`main`, every push to `main`, and manual dispatches. It installs the exact
+CPython 3.11 test environment from `requirements-ci.txt` with SHA-256 hash
+verification, checks dependency consistency, compiles the Python sources and
+tests, and runs the full test suite. Third-party actions are pinned to full
+commit SHAs, workflow permissions are read-only, and the job has a 10-minute
+timeout.
+
+This CI proves only that these repository checks pass in the stated GitHub
+runner environment. It is not a vulnerability scan, production certification,
+live integration test, Windows test, or substitute for independent security
+review. Runtime analysis remains offline and standard-library-only.
