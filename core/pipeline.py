@@ -59,7 +59,8 @@ def analyze_email(
     risk_result = compute_risk(evidence_bundle)
     threat_graph = build_threat_graph(evidence_bundle, risk_result, email_id=parsed.from_)
     prevention = generate_prevention_recommendation(
-        investigation_id, evidence_bundle, risk_result, threat_graph, policies=policies
+        investigation_id, evidence_bundle, risk_result, threat_graph,
+        policies=policies, parsed_email=parsed.to_dict()
     )
     report = generate_report(
         parsed.to_dict(), evidence_bundle, risk_result, threat_graph,
