@@ -8,9 +8,11 @@ from __future__ import annotations
 
 import hashlib
 import json
-from dataclasses import asdict, dataclass
+import math
+from dataclasses import dataclass
 from datetime import datetime, timezone
-from typing import Any, Dict, Iterable, Optional, Tuple
+from types import MappingProxyType
+from typing import Any, Dict, Iterable, Mapping, Optional, Tuple
 
 
 class FeedbackError(ValueError):
@@ -31,6 +33,50 @@ def _canonical(value: Any) -> str:
 
 def _digest(value: Any) -> str:
     return hashlib.sha256(_canonical(value).encode("utf-8")).hexdigest()
+
+
+def _freeze(value: Any, active: Optional[set[int]] = None) -> Any:
+    """Deep-copy JSON-compatible input into immutable canonical containers."""
+    if active is None:
+        active = set()
+    is_container = isinstance(value, (Mapping, list, tuple, set))
+    identity = id(value)
+    if is_container and identity in active:
+        raise FeedbackError("details contain a recursive reference")
+    if is_container:
+        active.add(identity)
+    try:
+        if isinstance(value, Mapping):
+            if any(not isinstance(key, str) for key in value):
+                raise FeedbackError("details mapping keys must be strings")
+            return MappingProxyType({
+                key: _freeze(item, active) for key, item in sorted(value.items())
+            })
+        if isinstance(value, (list, tuple)):
+            return tuple(_freeze(item, active) for item in value)
+        if isinstance(value, set):
+            return tuple(sorted(
+                (_freeze(item, active) for item in value), key=_canonical
+            ))
+        if isinstance(value, float) and not math.isfinite(value):
+            raise FeedbackError("details contain non-finite float")
+        if value is None or isinstance(value, (str, int, float, bool)):
+            return value
+        raise FeedbackError(
+            f"details contain unsupported value type: {type(value).__name__}"
+        )
+    finally:
+        if is_container:
+            active.remove(identity)
+
+
+def _thaw(value: Any) -> Any:
+    """Return ordinary JSON-serializable copies for output and hashing."""
+    if isinstance(value, Mapping):
+        return {key: _thaw(item) for key, item in value.items()}
+    if isinstance(value, tuple):
+        return [_thaw(item) for item in value]
+    return value
 
 
 def _timestamp(value: str) -> str:
@@ -61,7 +107,7 @@ class FeedbackRecord:
     policy_ids: Tuple[str, ...]
     policy_versions: Tuple[str, ...]
     rule_versions: Tuple[str, ...]
-    details: Dict[str, Any]
+    details: Mapping[str, Any]
     record_hash: str
     mutates_originals: bool = False
     executes_actions: bool = False
@@ -74,11 +120,32 @@ class FeedbackRecord:
             raise FeedbackError(f"unsupported actor_role: {self.actor_role}")
         if self.mutates_originals or self.executes_actions or self.trains_model:
             raise FeedbackError("feedback records cannot mutate, execute, or train")
+        object.__setattr__(self, "details", _freeze(self.details))
 
     def to_dict(self) -> Dict[str, Any]:
-        result = asdict(self)
-        for key in ("evidence_ids", "policy_ids", "policy_versions", "rule_versions"):
-            result[key] = list(result[key])
+        # dataclasses.asdict cannot handle mappingproxy; build the output
+        # explicitly and return detached mutable copies for serialization.
+        result = {
+            "feedback_id": self.feedback_id,
+            "decision_type": self.decision_type,
+            "actor": self.actor,
+            "actor_role": self.actor_role,
+            "decided_at": self.decided_at,
+            "reason": self.reason,
+            "investigation_id": self.investigation_id,
+            "recommendation_id": self.recommendation_id,
+            "evidence_ids": list(self.evidence_ids),
+            "original_evidence_hash": self.original_evidence_hash,
+            "original_recommendation_hash": self.original_recommendation_hash,
+            "policy_ids": list(self.policy_ids),
+            "policy_versions": list(self.policy_versions),
+            "rule_versions": list(self.rule_versions),
+            "details": _thaw(self.details),
+            "record_hash": self.record_hash,
+            "mutates_originals": self.mutates_originals,
+            "executes_actions": self.executes_actions,
+            "trains_model": self.trains_model,
+        }
         return result
 
 
@@ -92,7 +159,7 @@ def create_feedback_record(
     recommendation: dict,
     policy_versions: Optional[Iterable[str]] = None,
     rule_versions: Optional[Iterable[str]] = None,
-    details: Optional[Dict[str, Any]] = None,
+    details: Optional[Mapping[str, Any]] = None,
 ) -> FeedbackRecord:
     """Create one immutable decision record linked to original snapshots."""
     if decision_type not in DECISION_TYPES:
@@ -109,7 +176,7 @@ def create_feedback_record(
         raise FeedbackError("recommendation with recommendation_id is required")
     if recommendation.get("investigation_id") != investigation.get("investigation_id"):
         raise FeedbackError("recommendation and investigation IDs do not match")
-    if details is not None and not isinstance(details, dict):
+    if details is not None and not isinstance(details, Mapping):
         raise FeedbackError("details must be a mapping")
 
     evidence = (investigation.get("evidence") or {}).get("evidence", [])
@@ -140,10 +207,10 @@ def create_feedback_record(
         "policy_ids": policy_ids,
         "policy_versions": policy_versions_tuple,
         "rule_versions": rule_versions_tuple,
-        "details": details or {},
+        "details": _freeze(details or {}),
         "mutates_originals": False, "executes_actions": False, "trains_model": False,
     }
-    record_hash = _digest(payload)
+    record_hash = _digest(_thaw(payload))
     return FeedbackRecord(
         feedback_id=f"FDBK-{record_hash[:16].upper()}", record_hash=record_hash, **payload
     )
@@ -171,7 +238,7 @@ def verify_feedback_integrity(
     payload.pop("record_hash")
     for key in ("evidence_ids", "policy_ids", "policy_versions", "rule_versions"):
         payload[key] = tuple(payload[key])
-    if _digest(payload) != record.record_hash:
+    if _digest(_thaw(payload)) != record.record_hash:
         raise FeedbackError("feedback record integrity check failed")
     if f"FDBK-{record.record_hash[:16].upper()}" != record.feedback_id:
         raise FeedbackError("feedback ID does not match record content")
