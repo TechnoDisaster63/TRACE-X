@@ -32,9 +32,10 @@ def analyze_email(
     path: str,
     trusted_domains: Optional[List[str]] = None,
     trusted_authserv_ids: Optional[List[str]] = None,
+    policies: Optional[List[dict]] = None,
 ) -> dict:
     """
-    Run the full M01-M10 pipeline against a single .eml file.
+    Run the full M01-M12 pipeline against a single .eml file.
     Returns a single JSON-serializable investigation result.
 
     A single, unique investigation_id is generated once here and
@@ -58,7 +59,7 @@ def analyze_email(
     risk_result = compute_risk(evidence_bundle)
     threat_graph = build_threat_graph(evidence_bundle, risk_result, email_id=parsed.from_)
     prevention = generate_prevention_recommendation(
-        investigation_id, evidence_bundle, risk_result, threat_graph
+        investigation_id, evidence_bundle, risk_result, threat_graph, policies=policies
     )
     report = generate_report(
         parsed.to_dict(), evidence_bundle, risk_result, threat_graph,
@@ -119,6 +120,7 @@ def analyze_campaign(
     paths: List[str],
     trusted_domains: Optional[List[str]] = None,
     trusted_authserv_ids: Optional[List[str]] = None,
+    policies: Optional[List[dict]] = None,
 ) -> dict:
     """
     Analyze multiple .eml files individually (each gets its own unique
@@ -140,6 +142,7 @@ def analyze_campaign(
             p,
             trusted_domains=trusted_domains,
             trusted_authserv_ids=trusted_authserv_ids,
+            policies=policies,
         )
         for p in paths
     ]

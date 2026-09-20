@@ -1,6 +1,6 @@
 # TRACE-X — Email Forensic Investigation & Campaign Intelligence Platform
 
-**Status: PROTOTYPE (M01-M11 advisory-only).** This is a Python-only core analysis
+**Status: PROTOTYPE (M01-M12 advisory-only).** This is a Python-only core analysis
 engine. It has no frontend, no API server, and no database. It is not a
 production security product and does not constitute legal or regulatory
 proof of anything.
@@ -29,8 +29,9 @@ multi-email campaign correlation, a structured investigation report, and an advi
 | M09 | Threat Graph — per-email node/edge graph, threat-pattern classification, **and multi-email campaign correlation** |
 | M10 | Report Generator — full investigation report (JSON + human-readable text) |
 | M11 | Prevention Recommendation Engine — typed, explainable, non-executable advisory output |
+| M12 | Trust and Policy Engine — typed, versioned, deterministic advisory policy decisions |
 
-**Not yet built / explicitly out of scope for this build:** M12 policy engine,
+**Not yet built / explicitly out of scope for this build:** persistent policy administration,
 action execution/adapters, frontend, API server, database, cloud services, and
 machine-learning classification. M11 is rule-based and advisory-only.
 
@@ -123,7 +124,7 @@ or, with the virtual environment active:
 python -m pytest tests\ -v
 ```
 
-As of this build: **180 real, executed tests, all passing** — unit tests
+As of this build: **206 real, executed tests, all passing** — unit tests
 for M01-M10, dedicated investigation-ID regression tests (including
 subprocess-level reproduction of the original ID-collision bug), dedicated
 campaign-correlation tests, dedicated M08 double-counting/correlation
@@ -146,9 +147,10 @@ trace-x/
 │   ├── m08_risk_engine/
 │   ├── m09_threat_graph/        (threat graph + campaign correlation)
 │   ├── m10_report_generator/
-│   └── m11_prevention_recommendation/
+│   ├── m11_prevention_recommendation/
+│   └── m12_trust_policy/
 ├── core/
-│   ├── pipeline.py       (wires M01->M10; analyze_email + analyze_campaign)
+│   ├── pipeline.py       (wires M01->M12; analyze_email + analyze_campaign)
 │   ├── models.py
 │   ├── config.py
 │   └── utils.py          (incl. persistent investigation-ID generator)

@@ -10,7 +10,9 @@ from __future__ import annotations
 import hashlib
 from dataclasses import asdict, dataclass, field
 from datetime import datetime, timezone
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
+
+from modules.m12_trust_policy.engine import evaluate_policies
 
 VALID_ACTIONS = {
     "ALLOW_WITH_NOTICE",
@@ -171,6 +173,7 @@ def generate_prevention_recommendation(
     evidence_bundle: dict,
     risk: dict,
     threat_graph: dict,
+    policies: Optional[List[dict]] = None,
 ) -> dict:
     """Return one typed, explainable, non-executable prevention recommendation."""
     evidence_bundle = evidence_bundle or {}
@@ -196,6 +199,19 @@ def generate_prevention_recommendation(
             "Reported authentication evidence from an untrusted source may support analyst review but cannot support automated prevention action."
         )
 
+    policy_decision = evaluate_policies(
+        policies or [], risk, threat_graph, evidence_bundle, selected["action"],
+        base_requires_approval=selected["approval"],
+    )
+    effective_action = policy_decision["effective_action"]
+    if effective_action != selected["action"]:
+        selected = dict(selected)
+        selected["action"] = effective_action
+        selected["mode"] = policy_decision["action_mode"]
+        selected["approval"] = policy_decision["requires_human_approval"]
+        selected["rules"] = [*selected["rules"], "M12-POLICY-DECISION"]
+        selected["reason"] = selected["reason"] + " " + policy_decision["explanation"]
+
     recommendation = PreventionRecommendation(
         recommendation_id=_stable_id(investigation_id or "UNKNOWN", selected["action"], evidence_ids),
         investigation_id=investigation_id or "UNKNOWN",
@@ -209,7 +225,7 @@ def generate_prevention_recommendation(
         reason=selected["reason"],
         potential_impact=selected["impact"],
         reversibility=selected["reversibility"],
-        policy_ids=[],
+        policy_ids=policy_decision["selected_policy_ids"],
         requires_human_approval=selected["approval"],
         created_at=datetime.now(timezone.utc).isoformat(),
         explanation=_explanations(risk_factors),
@@ -217,4 +233,6 @@ def generate_prevention_recommendation(
         limitations=limitations,
         executable=False,
     )
-    return recommendation.to_dict()
+    result = recommendation.to_dict()
+    result["policy_decision"] = policy_decision
+    return result
