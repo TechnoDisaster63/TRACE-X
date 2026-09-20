@@ -110,3 +110,18 @@ Date: 2026-09-20
 - live SIEM/SOAR/firewall/gateway/mailbox adapters
 - reputation, ownership, allowlist, and policy enrichment
 - signed exports, persistence, or automated enforcement
+
+## M14 analyst feedback - IMPLEMENTED
+
+- immutable typed feedback records for nine supported analyst decisions
+- evidence/recommendation SHA-256 linkage and integrity verification
+- actor, role, time, reason, details, policy versions, and rule versions
+- deterministic review/tuning summaries and review flags
+- no mutation, action execution, automatic tuning, or model training
+
+## M14 analyst feedback - NOT YET IMPLEMENTED
+
+- persistence, access control, authenticated analyst identities, or retention
+- automatic threshold/rule/policy changes
+- training/evaluation pipeline or adaptive machine learning
+- live case-management integration
