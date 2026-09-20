@@ -74,3 +74,21 @@ Date: 2026-09-20
 - recipient/asset sensitivity context
 - mailbox telemetry or live financial verification
 - production approval or enforcement workflow
+
+## M16 lifecycle update - IMPLEMENTED
+
+- typed frozen lifecycle and audit events
+- immutable recommendation SHA-256 linkage
+- explicit legal transitions and terminal states
+- actor, role, timezone-aware timestamp, reason, and details recording
+- append-only hash-linked event tuples and integrity verification
+- reversal eligibility and required external references
+- execution/outcome states are records only; no external action executes
+
+## M16 lifecycle update - NOT YET IMPLEMENTED
+
+- file/database persistence
+- cross-process locking and transactions
+- authenticated identities, access control, cryptographic signatures
+- retention/deletion policy and legal chain-of-custody process
+- live adapters or approval UI/API
