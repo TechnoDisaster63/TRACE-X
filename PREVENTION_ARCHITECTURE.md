@@ -178,3 +178,23 @@ may have coarse resolution, so strict timestamp growth would reject valid
 same-tick decisions. Ordering and integrity come from event sequence numbers
 and hash links; timestamps must be monotonic non-decreasing, not strictly
 increasing.
+
+## M13 prevention intelligence/IOC export - IMPLEMENTED (offline JSON/CSV)
+
+`modules/m13_ioc_export/engine.py` converts only supported, evidence-backed
+observables into deterministic TRACE-X JSON or CSV. It is explicitly not STIX.
+Each record contains the source investigation and evidence IDs, source module,
+ordinal confidence label (not a probability), observation/review/expiration
+timestamps, recommended action, reason, verification status, and limitations.
+
+The initial extractor is intentionally narrow: exact HTTP/HTTPS URL evidence,
+selected IP evidence, and selected domain fields with known labels. Descriptive
+authentication text and arbitrary prose are not guessed into IOCs. Duplicates
+are removed deterministically and records are sorted before serialization.
+
+All current records set `safe_for_automated_enforcement=false`. Even a future
+independently verified observable would remain non-enforceable here because
+this prototype has no reputation, ownership, allowlist, scope, policy, or
+false-positive control sufficient to justify automated blocking. The exporter
+makes no network call and performs no SIEM, firewall, gateway, mailbox, or
+other external action.
