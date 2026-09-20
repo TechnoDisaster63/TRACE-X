@@ -57,3 +57,20 @@ Date: 2026-09-20
 - authenticated policy administration
 - exceptions and department/recipient enrichment
 - policy execution or live control adapters
+
+## BEC workflow update - IMPLEMENTED
+
+- deterministic local detection of payment, bank-change, invoice, gift-card,
+  payroll, urgency, and secrecy language categories
+- separate content, behavioral, identity, authentication, and URL indicators
+- keyword-only findings remain insufficient without forensic corroboration
+- evidence-traceable safeguards and BEC counterfactuals
+- privacy-preserving assessment output that does not copy raw message text
+- advisory-only, non-executable behavior
+
+## BEC workflow update - NOT YET IMPLEMENTED
+
+- relationship-history baselining
+- recipient/asset sensitivity context
+- mailbox telemetry or live financial verification
+- production approval or enforcement workflow
