@@ -123,3 +123,65 @@ def test_timestamp_cannot_move_backwards():
 def test_only_explicitly_non_executable_recommendation_is_accepted():
     with pytest.raises(LifecycleError, match="non-executable"):
         create_lifecycle(dict(REC, executable=True), "system", "SYSTEM", T0)
+
+
+
+def test_integrity_rejects_hash_valid_but_illegal_transition_chain():
+    """A caller cannot bypass transition validation by constructing frozen models."""
+    from modules.m16_prevention_audit import lifecycle as lifecycle_module
+    lifecycle = created()
+    original = lifecycle.events[0]
+    payload = {
+        "sequence": 2, "from_state": "PENDING", "to_state": "EXECUTED",
+        "actor": "adapter", "actor_role": "ADAPTER", "timestamp": T1,
+        "reason": "forged direct execution", "details": {"external_action_reference": "X"},
+        "previous_event_hash": original.event_hash,
+    }
+    forged = lifecycle_module.AuditEvent(
+        event_id="AUD-PLACEHOLDER", event_hash="placeholder", **payload
+    )
+    event_hash = lifecycle_module._digest(payload)
+    forged = replace(
+        forged, event_hash=event_hash,
+        event_id=f"AUD-{event_hash[:16].upper()}",
+    )
+    tampered = replace(
+        lifecycle, state="EXECUTED", updated_at=T1,
+        events=(original, forged),
+    )
+    with pytest.raises(LifecycleError, match="illegal transition"):
+        verify_lifecycle_integrity(tampered)
+
+
+@pytest.mark.parametrize("value", [None, 123, [], {}, object()])
+def test_malformed_non_string_timestamp_is_normalized(value):
+    with pytest.raises(LifecycleError, match="ISO-8601 string"):
+        create_lifecycle(REC, "system", "SYSTEM", value)
+
+
+def test_equal_timestamps_are_allowed_and_integrity_valid():
+    """Ordering comes from sequence/hash links; equal-resolution clocks are valid."""
+    review = transition_lifecycle(created(), "REVIEW_REQUIRED", "alice", "ANALYST", T0, "Review")
+    approved = transition_lifecycle(review, "APPROVED", "alice", "ANALYST", T0, "Approve")
+    assert [event.timestamp for event in approved.events] == [T0, T0, T0]
+    assert verify_lifecycle_integrity(approved, REC)
+
+
+def test_integrity_rejects_non_pending_first_event_even_when_rehashed():
+    from modules.m16_prevention_audit import lifecycle as lifecycle_module
+    lifecycle = created()
+    original = lifecycle.events[0]
+    payload = {
+        "sequence": 1, "from_state": None, "to_state": "APPROVED",
+        "actor": original.actor, "actor_role": original.actor_role,
+        "timestamp": original.timestamp, "reason": original.reason,
+        "details": original.details, "previous_event_hash": None,
+    }
+    event_hash = lifecycle_module._digest(payload)
+    forged = replace(
+        original, to_state="APPROVED", event_hash=event_hash,
+        event_id=f"AUD-{event_hash[:16].upper()}",
+    )
+    tampered = replace(lifecycle, state="APPROVED", events=(forged,))
+    with pytest.raises(LifecycleError, match="begin in PENDING"):
+        verify_lifecycle_integrity(tampered)
