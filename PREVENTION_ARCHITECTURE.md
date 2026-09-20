@@ -163,3 +163,18 @@ chain-of-custody or immutable storage claim.
 No file persistence is included in this slice. Safe storage, locking, access
 control, retention, signatures, encrypted records, and multi-process
 concurrency need a separate design before persistence is added.
+
+
+### M16 lifecycle hardening
+
+Integrity verification independently checks every event hop against the same
+legal transition table used when appending events. A correctly re-hashed but
+illegal sequence is rejected, and the first event must establish `PENDING`.
+Malformed and non-string timestamps fail with `LifecycleError` rather than
+leaking parser-specific exceptions.
+
+Equal timestamps are intentionally allowed. Real clocks and serialized inputs
+may have coarse resolution, so strict timestamp growth would reject valid
+same-tick decisions. Ordering and integrity come from event sequence numbers
+and hash links; timestamps must be monotonic non-decreasing, not strictly
+increasing.
