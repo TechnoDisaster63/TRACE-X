@@ -99,3 +99,51 @@ def test_risk_engine_no_arbitrary_weights_all_documented():
     from modules.m08_risk_engine.engine import SEVERITY_WEIGHTS, MAX_CONTRIBUTION_PER_SEVERITY
     assert set(SEVERITY_WEIGHTS.keys()) == {"CRITICAL", "HIGH", "MEDIUM", "LOW", "INFO"}
     assert set(MAX_CONTRIBUTION_PER_SEVERITY.keys()) == {"CRITICAL", "HIGH", "MEDIUM", "LOW", "INFO"}
+
+
+def test_untrusted_reported_auth_provenance_survives_evidence_and_risk():
+    results = _run_m01_to_m06(p("phishing/phishing_paypal_lookalike.eml"))
+    bundle = build_evidence_bundle(*results)
+    auth_items = [e for e in bundle["evidence"] if e["module"] == "M03_AUTH_ANALYZER"]
+    assert auth_items
+    assert all(e["authentication_provenance"]["verification_state"] == "REPORTED_UNVERIFIED" for e in auth_items)
+    assert all(e["automated_prevention_eligible"] is False for e in auth_items)
+
+    risk = compute_risk(bundle)
+    constrained = risk["prevention_constraints"]["untrusted_reported_authentication_evidence_ids"]
+    assert constrained == [rf["evidence_id"] for rf in risk["risk_factors"] if rf["module"] == "M03_AUTH_ANALYZER"]
+    assert risk["prevention_constraints"]["untrusted_authentication_may_support_automated_action"] is False
+
+
+def test_trusted_authserv_provenance_is_explicit_but_not_independent_verification():
+    parsed = parse_eml(p("phishing/phishing_paypal_lookalike.eml"))
+    authserv_id = parsed.authentication_results[0].split(";", 1)[0].strip()
+    header_result = analyze_headers(parsed)
+    auth_result = analyze_authentication(parsed, trusted_authserv_ids=[authserv_id])
+    identity_result = analyze_identity(parsed)
+    received_result = analyze_received_chain(parsed)
+    url_result = analyze_urls(parsed)
+    bundle = build_evidence_bundle(header_result, auth_result, identity_result, received_result, url_result)
+
+    auth_items = [e for e in bundle["evidence"] if e["module"] == "M03_AUTH_ANALYZER"]
+    assert auth_items
+    assert all(e["authentication_provenance"]["verification_state"] == "REPORTED_TRUSTED_SOURCE" for e in auth_items)
+    assert all(e["authentication_provenance"]["independently_verified"] is False for e in auth_items)
+    assert all(e["automated_prevention_eligible"] is True for e in auth_items)
+
+
+def test_auth_provenance_metadata_does_not_change_forensic_risk_score():
+    parsed = parse_eml(p("phishing/phishing_paypal_lookalike.eml"))
+    authserv_id = parsed.authentication_results[0].split(";", 1)[0].strip()
+
+    def score(trusted_ids):
+        header_result = analyze_headers(parsed)
+        auth_result = analyze_authentication(parsed, trusted_authserv_ids=trusted_ids)
+        identity_result = analyze_identity(parsed)
+        received_result = analyze_received_chain(parsed)
+        url_result = analyze_urls(parsed)
+        return compute_risk(build_evidence_bundle(
+            header_result, auth_result, identity_result, received_result, url_result
+        ))["score"]
+
+    assert score([]) == score([authserv_id])

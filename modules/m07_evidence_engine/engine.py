@@ -64,7 +64,7 @@ def build_evidence_bundle(
                 continue
             seen_dedup_keys.add(dedup_key)
 
-            evidence_items.append({
+            evidence_item = {
                 "evidence_id": _next_evidence_id(),
                 "finding": raw_finding["finding"],
                 "severity": raw_finding["severity"],
@@ -74,7 +74,38 @@ def build_evidence_bundle(
                 "category": raw_finding.get("category", "GENERAL"),
                 "module": module_label,
                 "original_finding_id": raw_finding["finding_id"],
-            })
+            }
+
+            # M03 reports values found in Authentication-Results headers. Keep
+            # their provenance attached to the normalized evidence so future
+            # prevention logic cannot mistake an attacker-supplied header for
+            # verified authentication. This metadata does not change forensic
+            # scoring; it constrains whether the item may support automation.
+            if module_key == "authentication":
+                mechanism = None
+                source = raw_finding.get("source", "")
+                if source.startswith("auth:spf"):
+                    mechanism = "spf"
+                elif source.startswith("auth:dkim"):
+                    mechanism = "dkim"
+                elif source.startswith("auth:dmarc"):
+                    mechanism = "dmarc"
+
+                mechanism_result = auth_result.get(mechanism, {}) if mechanism else {}
+                trusted_source = bool(mechanism_result.get("trusted_source", False))
+                evidence_item["authentication_provenance"] = {
+                    "mechanism": mechanism,
+                    "authserv_id": mechanism_result.get("authserv_id"),
+                    "trusted_source": trusted_source,
+                    "verification_state": (
+                        "REPORTED_TRUSTED_SOURCE" if trusted_source
+                        else "REPORTED_UNVERIFIED"
+                    ),
+                    "independently_verified": False,
+                }
+                evidence_item["automated_prevention_eligible"] = trusted_source
+
+            evidence_items.append(evidence_item)
 
     # Sort by severity (highest first) for readability; ties keep insertion order
     evidence_items.sort(key=lambda e: severity_rank(e["severity"]), reverse=True)
