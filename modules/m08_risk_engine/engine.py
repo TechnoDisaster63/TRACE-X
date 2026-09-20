@@ -145,14 +145,27 @@ def compute_risk(evidence_bundle: dict) -> dict:
         sev = item["severity"]
         weight = SEVERITY_WEIGHTS.get(sev, 0)
         if weight > 0:
-            risk_factors.append({
+            factor = {
                 "evidence_id": item["evidence_id"],
                 "finding": item["finding"],
                 "severity": sev,
                 "weight": weight,
                 "module": item["module"],
                 "source": item["source"],
-            })
+            }
+            if item.get("module") == "M03_AUTH_ANALYZER":
+                factor["authentication_provenance"] = item.get(
+                    "authentication_provenance",
+                    {
+                        "verification_state": "REPORTED_UNVERIFIED",
+                        "independently_verified": False,
+                        "trusted_source": False,
+                    },
+                )
+                factor["automated_prevention_eligible"] = bool(
+                    item.get("automated_prevention_eligible", False)
+                )
+            risk_factors.append(factor)
 
     # Step 1: correlate related evidence and compute a per-item effective
     # (post-decay) weight, so strongly related signals don't inflate the
@@ -200,6 +213,19 @@ def compute_risk(evidence_bundle: dict) -> dict:
     # Sort risk factors by effective (post-correlation) weight desc for readability
     risk_factors.sort(key=lambda rf: rf["effective_weight"], reverse=True)
 
+    untrusted_auth_evidence_ids = [
+        rf["evidence_id"]
+        for rf in risk_factors
+        if rf.get("module") == "M03_AUTH_ANALYZER"
+        and not rf.get("automated_prevention_eligible", False)
+    ]
+    trusted_auth_evidence_ids = [
+        rf["evidence_id"]
+        for rf in risk_factors
+        if rf.get("module") == "M03_AUTH_ANALYZER"
+        and rf.get("automated_prevention_eligible", False)
+    ]
+
     return {
         "score": score,
         "risk_level": level,
@@ -207,6 +233,17 @@ def compute_risk(evidence_bundle: dict) -> dict:
         "risk_factors": risk_factors,
         "score_breakdown": capped_breakdown,
         "explanation": explanation,
+        "prevention_constraints": {
+            "untrusted_reported_authentication_evidence_ids": untrusted_auth_evidence_ids,
+            "trusted_source_authentication_evidence_ids": trusted_auth_evidence_ids,
+            "untrusted_authentication_may_support_automated_action": False,
+            "note": (
+                "Risk scoring preserves reported authentication observations for "
+                "forensic review. Authentication evidence from an untrusted source "
+                "must not support automated prevention action. A trusted source is "
+                "still reported-header evidence, not independent SPF/DKIM/DMARC verification."
+            ),
+        },
         "scoring_method": (
             "Rule-based, additive scoring. Each evidence item contributes a fixed, "
             "documented weight based on its severity (CRITICAL=30, HIGH=18, MEDIUM=9, "
