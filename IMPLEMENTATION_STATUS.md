@@ -125,3 +125,12 @@ Date: 2026-09-20
 - automatic threshold/rule/policy changes
 - training/evaluation pipeline or adaptive machine learning
 - live case-management integration
+
+
+## Final readiness
+
+- Prototype: **READY**
+- Internal testing: **READY WITH LIMITS**
+- Hackathon demo: **READY**
+- Production: **NOT READY**
+- Live integration: **NOT IMPLEMENTED**; offline schema/export preparation only
