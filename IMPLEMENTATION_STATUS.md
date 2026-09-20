@@ -92,3 +92,21 @@ Date: 2026-09-20
 - authenticated identities, access control, cryptographic signatures
 - retention/deletion policy and legal chain-of-custody process
 - live adapters or approval UI/API
+
+## M13 IOC export - IMPLEMENTED
+
+- deterministic TRACE-X JSON and CSV formats
+- narrow evidence-backed URL/IP/domain extraction
+- source investigation/evidence IDs and reasons
+- ordinal confidence labels explicitly marked non-probabilistic
+- review and expiration timestamps
+- truthful heuristic/reported labeling; no independent verifier is claimed
+- automated enforcement always false
+- no network or live integration behavior
+
+## M13 IOC export - NOT YET IMPLEMENTED
+
+- STIX/TAXII
+- live SIEM/SOAR/firewall/gateway/mailbox adapters
+- reputation, ownership, allowlist, and policy enrichment
+- signed exports, persistence, or automated enforcement
