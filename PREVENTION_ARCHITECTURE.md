@@ -119,3 +119,23 @@ or mutate external state.
 Not yet implemented: file-backed policy loading, signatures, access control,
 persistent audit history, exceptions, policy migration, department/recipient
 attributes, UI/API management, or live enforcement adapters.
+
+## BEC-specific prevention workflow - IMPLEMENTED (advisory prototype)
+
+`modules/m11_prevention_recommendation/bec.py` separates BEC signals into
+content, behavioral, identity, authentication, and URL categories. Content is
+checked locally with bounded deterministic patterns, while forensic categories
+reference existing M07 evidence IDs.
+
+A keyword alone is insufficient. `REVIEW_RECOMMENDED` requires a BEC-related
+content indicator plus forensic identity, authentication, or URL corroboration.
+Otherwise the result is `INSUFFICIENT_CORROBORATION` or `NOT_INDICATED`.
+
+The assessment copies no raw body text into its output. It provides evidence
+references, cautious explanation, financial and out-of-band verification
+safeguards, counterfactuals, limitations, and `executable=false`. It sends no
+message, initiates no payment, and performs no hold, quarantine, or block.
+
+Relationship-history analysis is not implemented because this offline build
+has no mailbox history or persistent trust graph. The assessment states that
+limit instead of inventing relationship evidence.
