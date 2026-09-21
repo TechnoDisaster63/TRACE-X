@@ -35,7 +35,7 @@ multi-email campaign correlation, a structured investigation report, and an advi
 | M16 | Prevention audit model — immutable recommendation linkage and validated offline lifecycle records |
 
 **Not yet built / explicitly out of scope for this build:** persistent policy administration,
-action execution/adapters, frontend, API server, database, cloud services, and
+action execution/adapters, network-facing frontend/API server, database, cloud services, and
 machine-learning classification. M11 is rule-based and advisory-only.
 
 ## 3. Requirements
@@ -127,7 +127,7 @@ or, with the virtual environment active:
 python -m pytest tests\ -v
 ```
 
-As of this build: **297 real, executed tests, all passing** — unit tests
+The repository test suite covers the complete offline pipeline, case packaging and demo interface — unit tests
 for M01-M10, dedicated investigation-ID regression tests (including
 subprocess-level reproduction of the original ID-collision bug), dedicated
 campaign-correlation tests, dedicated M08 double-counting/correlation
@@ -255,3 +255,21 @@ python cli.py verify-case output/TX-000001
 ```
 
 The verifier detects missing or changed artifacts. It does not authenticate the analyst or replace chain-of-custody procedures. Authentication findings remain reported-header analysis, not independent SPF/DKIM/DMARC verification. All recommendations remain advisory and non-executable.
+
+## Offline SIH demo interface
+
+Run the local judge-facing interface with the standard library only:
+
+```bash
+python demo.py
+```
+
+It opens `http://127.0.0.1:8765/` and accepts a local `.eml` upload or one of six synthetic demo scenarios. It calls the same deterministic pipeline as the CLI, displays evidence IDs and preserved origins, keeps severity/source reliability/analytic confidence separate, shows score contributions and uncertainty, and exposes the advisory recommendation with `executable=false` and its human-approval boundary. Each run publishes and immediately verifies the same private atomic case package used by the CLI.
+
+The server is loopback-only. It adds no API service, database, cloud call, ML model or runtime dependency. Email URLs are never visited, attachments are never executed, authentication stays reported-header analysis unless a trusted receiving boundary is explicitly configured, and campaign correlation stays batch-only. The browser page itself is a local presentation layer, not a network-facing product interface.
+
+The bundled scenario guide is in [`demo_scenarios/README.md`](demo_scenarios/README.md). For campaign correlation, use the existing batch command rather than treating one uploaded email as persistent campaign evidence:
+
+```bash
+python cli.py campaign test_data/campaign
+```

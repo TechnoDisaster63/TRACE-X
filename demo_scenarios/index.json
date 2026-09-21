@@ -1,0 +1,8 @@
+[
+  {"id":"legitimate","label":"Legitimate newsletter","path":"test_data/legitimate/legit_newsletter.eml","purpose":"Low-risk baseline"},
+  {"id":"phishing","label":"PayPal look-alike phishing","path":"test_data/phishing/phishing_paypal_lookalike.eml","purpose":"Identity, URL and reported-auth findings"},
+  {"id":"bec","label":"CEO wire-request BEC","path":"test_data/bec/bec_ceo_wire_request.eml","purpose":"Executive impersonation and payment request"},
+  {"id":"lookalike","label":"Look-alike domain","path":"test_data/phishing/lookalike_domain.eml","purpose":"Trusted-domain comparison"},
+  {"id":"malformed","label":"Malformed/truncated email","path":"test_data/malformed/malformed_truncated.eml","purpose":"Fail-safe parsing and uncertainty"},
+  {"id":"campaign","label":"Campaign member 01","path":"test_data/campaign/campaign_01.eml","purpose":"Single member; correlation remains batch-only"}
+]
