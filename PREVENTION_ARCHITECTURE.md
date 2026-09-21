@@ -74,16 +74,16 @@ The current mapping does not select `ESCALATE_TO_SOC`; it is reserved in the typ
 
 The existing investigation object gains a top-level `prevention` key. M10 gains `prevention_assessment`, and its text renderer adds a `PREVENTION ASSESSMENT` section. Existing keys and CLI commands remain unchanged.
 
-## M12 Trust and Policy Engine - DESIGNED BUT NOT IMPLEMENTED
+## M12 Trust and Policy Engine - IMPLEMENTED (local advisory model)
 
-A future M12 will own versioned policy documents, precedence, trusted identities, exceptions, expiry, approval requirements, and organization context. M11 currently reports an empty `policy_ids` list and does not pretend policy evaluation occurred.
+M12 owns typed, versioned policies, deterministic precedence and conflict handling, expiry checks, and advisory decisions. It has no persistent policy service or live execution path.
 
-## M13-M16 - FUTURE ROADMAP
+## M13-M16 status
 
-- M13 offline IOC/action export with verified-versus-heuristic labels
-- M14 analyst feedback stored separately from forensic evidence
-- M15 adapter interfaces with no default live execution
-- M16 prevention audit and case history
+- M13 is implemented as deterministic offline JSON/CSV IOC review export; automated enforcement stays false.
+- M14 is implemented as immutable local analyst-feedback records and review-only summaries; it does not train a model.
+- M15 is absent; no live adapter interfaces execute actions.
+- M16 is implemented as a local lifecycle/integrity record model; it records supplied outcomes but performs no external action.
 
 ## NOT SUPPORTED
 
