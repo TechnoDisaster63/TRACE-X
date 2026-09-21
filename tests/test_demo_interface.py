@@ -21,8 +21,13 @@ class DemoInterfaceTests(unittest.TestCase):
         env["TRACE_X_REPORTS_DIR"] = str(Path(cls.tmp.name) / "reports")
         cls.proc = subprocess.Popen([sys.executable, "demo.py", "--port", "0", "--no-browser"], cwd=ROOT,
                                     env=env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
-        line = cls.proc.stdout.readline().strip()
-        cls.port = int(line.rsplit(":", 1)[1].rstrip("/"))
+        for _ in range(20):
+            line = cls.proc.stdout.readline().strip()
+            if line.startswith("TRACE-X offline demo: http://127.0.0.1:"):
+                cls.port = int(line.rsplit(":", 1)[1].rstrip("/"))
+                break
+        else:
+            raise RuntimeError(f"Demo server did not publish its listen URL; last output: {line}")
 
     @classmethod
     def tearDownClass(cls):
