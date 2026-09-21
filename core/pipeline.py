@@ -1,9 +1,10 @@
 """
 core/pipeline.py
 
-Wires M01 -> M02 -> M03 -> M04 -> M05 -> M06 -> M07 -> M08 -> M09 -> M10
-into a single analyze_email() call. This is the integration layer that runs
-the full prototype end-to-end. No frontend, no API, no DB.
+Runs the local evidence pipeline (M01-M10), then attaches the M11 advisory
+recommendation and M12 policy evaluation. M13, M14, and M16 remain explicit
+offline library workflows rather than automatic pipeline side effects. There
+is no frontend, network API, database, or live action adapter.
 """
 import json
 import os
@@ -35,11 +36,11 @@ def analyze_email(
     policies: Optional[List[dict]] = None,
 ) -> dict:
     """
-    Run the full M01-M12 pipeline against a single .eml file.
+    Analyze one supplied .eml file and return one JSON-serializable investigation.
     Returns a single JSON-serializable investigation result.
 
     A single, unique investigation_id is generated once here and
-    propagated unchanged through every module (M01-M10) and into the
+    propagated unchanged through the core analysis and report path and into the
     saved JSON/report/text output for this investigation.
     """
     start = time.time()

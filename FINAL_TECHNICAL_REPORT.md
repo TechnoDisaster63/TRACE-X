@@ -7,11 +7,11 @@ Hackathon/problem: Smart India Hackathon 2026 / SIH26106
 
 ## 1. Executive summary
 
-TRACE-X is now a tested offline email-forensics and advisory prevention prototype. It preserves M01-M10, adds evidence provenance/automation constraints, structured non-executable prevention, deterministic policies, BEC corroboration, offline IOC export, immutable feedback, and an audit lifecycle model. Fresh integration validation passed 297 tests. It is ready for controlled internal testing and an evidence-labeled hackathon demo, not production enforcement.
+TRACE-X is now a tested offline email-forensics and advisory prevention prototype. It preserves M01-M10, adds evidence provenance/automation constraints, structured non-executable prevention, deterministic policies, BEC corroboration, offline IOC export, immutable feedback, and an audit lifecycle model. Fresh current-state validation passed 300 tests. It is ready for controlled internal testing and an evidence-labeled hackathon demo, not production enforcement.
 
 ## 2. Repository baseline
 
-Python standard-library runtime plus pytest for tests. Existing CLI: analyze, analyze-folder, campaign. Fresh environment/test commands are in BASELINE_VALIDATION.md. Original audited baseline was 164 passing tests; the exact integration base (`911be1011fc70a166789cb2b01f45524a5782f56`) had 294 passing tests; the final documentation branch has 297 passing tests.
+Python standard-library runtime plus pytest for tests. Existing CLI: analyze, analyze-folder, campaign. Fresh environment/test commands are in BASELINE_VALIDATION.md. Original audited baseline was 164 passing tests; the exact integration base (`911be1011fc70a166789cb2b01f45524a5782f56`) had 294 passing tests; the final documentation branch had 297 passing tests; current main has 300 passing tests.
 
 ## 3. Existing features verified
 
@@ -39,9 +39,9 @@ Offline default; parser/resource bounds; no attachment/URL execution; provenance
 
 ## 12-14. Tests and exact results
 
-Command: `/tmp/tracex-final-venv/bin/python -m pytest -q`
+Historical command: `/tmp/tracex-final-venv/bin/python -m pytest -q`
 
-Result: **297 passed, 0 failed, 0 skipped in 1.83s**. Wall wrapper: 2.017 seconds. The suite collected 297 tests. Focused results are recorded in staged PR reports; final representative demo results appear below.
+Historical result: **297 passed, 0 failed, 0 skipped in 1.83s**. Current validation on 2026-09-21 collected 300 tests and passed all 300 with no failures. The older timing is retained only as a dated record; it is not reused as a current performance claim.
 
 ## 15. Performance results
 

@@ -36,17 +36,17 @@ _RECOMMENDATION_RULES: List[_RecommendationRule] = [
     _RecommendationRule(
         "DO_NOT_CLICK", frozenset({"HIGH", "CRITICAL"}), frozenset(), 1,
         "Do not click any links or open any attachments in this message.",
-        "High-risk messages have a significant probability of containing malicious URLs or payloads.",
+        "The current rule-based assessment contains multiple or high-severity indicators. Do not interact until a human reviews the evidence.",
     ),
     _RecommendationRule(
         "DO_NOT_REPLY", frozenset({"HIGH", "CRITICAL"}), frozenset({"BEC", "PHISHING"}), 1,
         "Do not reply to this message. Verify the sender's identity through a known, trusted channel first.",
-        "Reply-To redirection and identity deception are primary vectors in BEC and phishing attacks.",
+        "The report found identity or routing signals associated with the current BEC or phishing pattern. Verify the request outside the message.",
     ),
     _RecommendationRule(
         "ESCALATE_SECURITY", frozenset({"CRITICAL"}), frozenset(), 1,
         "Escalate to the security team immediately and preserve the original message headers for forensic analysis.",
-        "CRITICAL risk indicates multiple corroborating threat signals.",
+        "The current rule-based assessment contains multiple corroborating high-severity signals.",
     ),
     _RecommendationRule(
         "MANUAL_REVIEW", frozenset({"MEDIUM", "HIGH"}), frozenset(), 2,
@@ -61,11 +61,11 @@ _RECOMMENDATION_RULES: List[_RecommendationRule] = [
     _RecommendationRule(
         "CHECK_AUTH_CONFIG", frozenset({"LOW", "MEDIUM", "HIGH", "CRITICAL"}), frozenset({"SPOOFING"}), 3,
         "Review SPF, DKIM, and DMARC configuration for the sender domain.",
-        "Authentication failures combined with identity signals suggest the sending infrastructure is not authorised.",
+        "Reported authentication failures combined with identity signals warrant a configuration and evidence review; TRACE-X did not independently verify authorization.",
     ),
     _RecommendationRule(
         "QUARANTINE", frozenset({"HIGH", "CRITICAL"}), frozenset(), 2,
-        "Consider quarantining this message to prevent further interaction by the recipient.",
+        "If your organization has an approved quarantine process, ask an authorized analyst to consider it after reviewing the evidence.",
         "Quarantine limits exposure while the message undergoes review.",
     ),
     _RecommendationRule(

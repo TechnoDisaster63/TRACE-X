@@ -1,150 +1,71 @@
-# TRACE-X Implementation Status
+# TRACE-X implementation status
 
-Date: 2026-09-20
+Current validation date: 2026-09-21
 
-## IMPLEMENTED
+## What runs now
 
-- M01-M10 offline forensic pipeline
-- reported authentication provenance and explicit trusted-authserv-id labeling
-- M07/M08 prevention constraints preventing untrusted reported auth from supporting automation
-- M11 typed advisory-only prevention recommendation
-- explanation, evidence references, counterfactuals, impact, reversibility, limits, and human-approval flag
-- backward-compatible JSON/text report integration
-- unit and full-regression coverage
+- M01-M10 analyze analyst-supplied `.eml` files locally: parsing, header and
+  identity signals, reported-header authentication, route and static URL
+  analysis, evidence linking, rule-based risk, threat patterns, and reports.
+- M09 can correlate only the emails supplied together in the current process.
+  It has no persistent campaign memory or live telemetry.
+- M11 returns a typed recommendation with reasons, evidence references,
+  counterfactuals, impact, reversibility, and limits.
+- M12 evaluates deterministic, versioned policies. Policy results remain
+  advisory and cannot silently weaken a stronger base recommendation.
+- M13 exports deterministic JSON/CSV review aids with source evidence and
+  expiration metadata. Automated enforcement is always false.
+- M14 stores immutable local analyst-feedback records and produces review-only
+  summaries. It does not tune rules or train a model.
+- M16 models local lifecycle and hash-linked audit records. Execution/outcome
+  states record supplied facts; they do not perform an external action.
 
-## PARTIALLY IMPLEMENTED
+That is 15 implemented modules: M01-M14 plus M16. M15 is absent because live
+adapter execution is not implemented.
 
-- campaign correlation: works for files supplied in one batch; no persistent history
-- trusted authentication boundary: explicit allowlist supported; no independent SPF/DKIM/DMARC verification
-- prevention: recommendation generation only; no policy engine, review store, or adapter execution
+## Safety and evidence boundaries
 
-## DESIGNED BUT NOT IMPLEMENTED
+- SPF, DKIM, and DMARC values come from reported `Authentication-Results`
+  headers. TRACE-X does not independently verify them.
+- URLs and attachments are never opened or executed.
+- Risk and confidence are deterministic labels, not probabilities.
+- Every recommendation is advisory and `executable=false`. Stronger
+  recommendations require human approval.
+- There is no mailbox, gateway, SIEM, SOAR, firewall, or financial-system
+  connection.
+- Reports are local plaintext artifacts and can contain sensitive message data.
 
-- M12 trust/policy engine
-- action lifecycle persistence
-- analyst approval/rejection records
-- IOC export and adapter interfaces
-- feedback store and rule-tuning workflow
+## Partial or local-only capability
 
-## FUTURE ROADMAP
+- Campaign correlation is process-local to one supplied batch.
+- Trusted authserv IDs are caller-supplied labels, not independent
+  authentication verification.
+- Policies, feedback, lifecycle records, and exports have no secure persistent
+  service, access control, or authenticated administration layer.
+- BEC detection uses bounded local content and evidence heuristics. It has no
+  relationship history, mailbox telemetry, reputation feed, or financial
+  verification.
 
-- report data protection and retention controls
-- stable evidence/case manifests
-- persistent campaign history
-- API/dashboard and enterprise adapters after foundational security work
+## Not implemented
 
-## NOT SUPPORTED
+- M15 or any live action adapter
+- automatic block, quarantine, delete, delivery, payment, or other external act
+- frontend, network API, database, secure multi-user case store, or approval UI
+- persistent campaign history or live monitoring
+- adaptive machine learning or automatic threshold/rule changes
+- independent SPF, DKIM, or DMARC verification
+- production, compliance, or legal chain-of-custody claims
 
-- destructive or automated security actions
-- live quarantine, block, delete, delivery, mailbox, SIEM, SOAR, or gateway control
-- ML classification or learning
-- independent authentication verification
-- production or legal-forensics claims
-
-## M12 update - IMPLEMENTED
-
-- typed and versioned trust policies
-- strict deterministic validation
-- exact all-condition matching over forensic context signals
-- priority, stable tie-breaking, explicit equal-priority conflicts
-- expiration and disabled-policy handling
-- allow-versus-risk safeguard
-- explainable advisory-only policy decisions attached to M11
-
-## M12 update - NOT YET IMPLEMENTED
-
-- persistent policy store or audit history
-- authenticated policy administration
-- exceptions and department/recipient enrichment
-- policy execution or live control adapters
-
-## BEC workflow update - IMPLEMENTED
-
-- deterministic local detection of payment, bank-change, invoice, gift-card,
-  payroll, urgency, and secrecy language categories
-- separate content, behavioral, identity, authentication, and URL indicators
-- keyword-only findings remain insufficient without forensic corroboration
-- evidence-traceable safeguards and BEC counterfactuals
-- privacy-preserving assessment output that does not copy raw message text
-- advisory-only, non-executable behavior
-
-## BEC workflow update - NOT YET IMPLEMENTED
-
-- relationship-history baselining
-- recipient/asset sensitivity context
-- mailbox telemetry or live financial verification
-- production approval or enforcement workflow
-
-## M16 lifecycle update - IMPLEMENTED
-
-- typed frozen lifecycle and audit events
-- immutable recommendation SHA-256 linkage
-- explicit legal transitions and terminal states
-- actor, role, timezone-aware timestamp, reason, and details recording
-- append-only hash-linked event tuples and integrity verification
-- reversal eligibility and required external references
-- execution/outcome states are records only; no external action executes
-
-## M16 lifecycle update - NOT YET IMPLEMENTED
-
-- file/database persistence
-- cross-process locking and transactions
-- authenticated identities, access control, cryptographic signatures
-- retention/deletion policy and legal chain-of-custody process
-- live adapters or approval UI/API
-
-## M13 IOC export - IMPLEMENTED
-
-- deterministic TRACE-X JSON and CSV formats
-- narrow evidence-backed URL/IP/domain extraction
-- source investigation/evidence IDs and reasons
-- ordinal confidence labels explicitly marked non-probabilistic
-- review and expiration timestamps
-- truthful heuristic/reported labeling; no independent verifier is claimed
-- automated enforcement always false
-- no network or live integration behavior
-
-## M13 IOC export - NOT YET IMPLEMENTED
-
-- STIX/TAXII
-- live SIEM/SOAR/firewall/gateway/mailbox adapters
-- reputation, ownership, allowlist, and policy enrichment
-- signed exports, persistence, or automated enforcement
-
-## M14 analyst feedback - IMPLEMENTED
-
-- immutable typed feedback records for nine supported analyst decisions
-- evidence/recommendation SHA-256 linkage and integrity verification
-- actor, role, time, reason, details, policy versions, and rule versions
-- deterministic review/tuning summaries and review flags
-- no mutation, action execution, automatic tuning, or model training
-
-## M14 analyst feedback - NOT YET IMPLEMENTED
-
-- persistence, access control, authenticated analyst identities, or retention
-- automatic threshold/rule/policy changes
-- training/evaluation pipeline or adaptive machine learning
-- live case-management integration
-
-
-## Final readiness
+## Readiness
 
 - Prototype: **READY**
-- Internal testing: **READY WITH LIMITS**
-- Hackathon demo: **READY**
+- Controlled local testing: **READY WITH LIMITS**
+- Evidence-labeled hackathon demo: **READY**
 - Production: **NOT READY**
-- Live integration: **NOT IMPLEMENTED**; offline schema/export preparation only
+- Live integration: **NOT IMPLEMENTED**
 
-## CI validation update - IMPLEMENTED
+## Validation record
 
-- GitHub Actions checks pull requests and pushes to `main`
-- exact CPython 3.11 test dependencies are version- and SHA-256-locked
-- dependency consistency, source/test compilation, and the full pytest suite are required
-- third-party actions are pinned to full commit SHAs
-- workflow permissions are read-only and execution is time-bounded
-
-## CI validation update - NOT SUPPORTED
-
-- CI is not a vulnerability scan, penetration test, production certification, or compliance claim
-- no paid service, repository secret, live mailbox, network runtime analysis, Windows runner, or external integration is used
-- branch protection remains a repository-owner setting; the workflow itself does not claim it is enabled
+A fresh run from current `main` on 2026-09-21 collected 300 tests and passed all
+300 with no failures. Historical 159, 164, 294, and 297-test runs remain in the
+repository as dated audit milestones, not current test counts.
