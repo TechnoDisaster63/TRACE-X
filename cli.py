@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-TRACE-X CLI Prototype (M01-M10)
+TRACE-X offline email evidence-analysis CLI
 
 Usage:
     python cli.py analyze <path/to/email.eml>
@@ -20,7 +20,7 @@ SEVERITY_TAG = {"CRITICAL": "[CRITICAL]", "HIGH": "[HIGH]", "MEDIUM": "[MEDIUM]"
 
 def _print_result(result: dict):
     print("=" * 60)
-    print("TRACE-X EMAIL INVESTIGATION")
+    print("TRACE-X EMAIL EVIDENCE REVIEW")
     print("=" * 60)
     print()
     print(f"Investigation ID:\n{result['investigation_id']}")
@@ -30,10 +30,10 @@ def _print_result(result: dict):
     print(f"SHA-256:\n{result['file_sha256']}")
     print()
     risk = result["risk"]
-    print(f"RISK:\n{risk['risk_level']}  (score: {risk['score']}/100)")
+    print(f"RISK ASSESSMENT:\n{risk['risk_level']}  (rule-based score: {risk['score']}/100)")
     print()
     tg = result["threat_graph"]
-    print(f"THREAT CLASSIFICATION:\n{tg['threat_class']}  (confidence: {tg['threat_class_confidence']})")
+    print(f"THREAT PATTERN:\n{tg['threat_class']}  (rule-based confidence: {tg['threat_class_confidence']})")
     print()
     print("TOP FINDINGS:")
     top = sorted(
@@ -48,7 +48,12 @@ def _print_result(result: dict):
     print()
     print(f"EVIDENCE COUNT:\n{result['evidence']['total_evidence_count']}")
     print()
-    print(f"CONFIDENCE:\n{risk['confidence']}")
+    print(f"ASSESSMENT CONFIDENCE:\n{risk['confidence']} (label, not a probability)")
+    print()
+    prevention = result.get("prevention") or {}
+    print("ADVISORY RECOMMENDATION:")
+    print(f"{prevention.get('recommended_action', 'NOT_GENERATED')}")
+    print("Boundary: advisory only; executable=false. A human analyst decides what happens next.")
     print()
     if result["parse_warnings"]:
         print("PARSE WARNINGS:")
@@ -59,7 +64,7 @@ def _print_result(result: dict):
 
 def cmd_analyze(args):
     if not os.path.isfile(args.path):
-        print(f"ERROR: file not found: {args.path}")
+        print(f"Input file not found: {args.path}")
         sys.exit(1)
     result = analyze_email(
         args.path,
@@ -76,7 +81,7 @@ def cmd_analyze(args):
 
 def cmd_analyze_folder(args):
     if not os.path.isdir(args.folder):
-        print(f"ERROR: folder not found: {args.folder}")
+        print(f"Input folder not found: {args.folder}")
         sys.exit(1)
     eml_files = sorted(glob.glob(os.path.join(args.folder, "**", "*.eml"), recursive=True))
     if not eml_files:
@@ -94,12 +99,12 @@ def cmd_analyze_folder(args):
             save_report_text(result)
             _print_result(result)
         except Exception as e:
-            print(f"ERROR analyzing {path}: {e}")
+            print(f"Could not analyze {path}: {e}")
 
 
 def cmd_campaign(args):
     if not os.path.isdir(args.folder):
-        print(f"ERROR: folder not found: {args.folder}")
+        print(f"Input folder not found: {args.folder}")
         sys.exit(1)
     eml_files = sorted(glob.glob(os.path.join(args.folder, "**", "*.eml"), recursive=True))
     if len(eml_files) < 2:
@@ -141,24 +146,24 @@ def cmd_campaign(args):
 
 
 def main():
-    parser = argparse.ArgumentParser(prog="cli.py", description="TRACE-X Email Forensic Investigation CLI")
+    parser = argparse.ArgumentParser(prog="cli.py", description="Analyze supplied .eml files locally and produce evidence-led, advisory reports")
     sub = parser.add_subparsers(dest="command")
 
-    p_analyze = sub.add_parser("analyze", help="Analyze a single .eml file")
-    p_analyze.add_argument("path", help="Path to .eml file")
+    p_analyze = sub.add_parser("analyze", help="Analyze one local .eml file")
+    p_analyze.add_argument("path", help="Path to the local .eml file")
     p_analyze.add_argument("--trusted-domains", nargs="*", default=[], dest="trusted_domains",
-                            help="Optional list of trusted domains for identity analysis")
+                            help="Domains the caller explicitly trusts for identity comparisons")
     p_analyze.add_argument("--trusted-authserv-ids", nargs="*", default=[], dest="trusted_authserv_ids",
-                            help="Explicit trusted Authentication-Results authserv-id allowlist")
+                            help="Authserv IDs the caller explicitly trusts as header sources; this does not independently verify SPF, DKIM, or DMARC")
     p_analyze.set_defaults(func=cmd_analyze)
 
-    p_folder = sub.add_parser("analyze-folder", help="Analyze all .eml files in a folder")
+    p_folder = sub.add_parser("analyze-folder", help="Analyze each local .eml file under a folder")
     p_folder.add_argument("folder", help="Path to folder containing .eml files")
     p_folder.add_argument("--trusted-domains", nargs="*", default=[], dest="trusted_domains")
     p_folder.add_argument("--trusted-authserv-ids", nargs="*", default=[], dest="trusted_authserv_ids")
     p_folder.set_defaults(func=cmd_analyze_folder)
 
-    p_campaign = sub.add_parser("campaign", help="Analyze all .eml files in a folder AND correlate them into campaigns")
+    p_campaign = sub.add_parser("campaign", help="Analyze a supplied folder and correlate only that process-local batch")
     p_campaign.add_argument("folder", help="Path to folder containing .eml files")
     p_campaign.add_argument("--trusted-domains", nargs="*", default=[], dest="trusted_domains")
     p_campaign.add_argument("--trusted-authserv-ids", nargs="*", default=[], dest="trusted_authserv_ids")

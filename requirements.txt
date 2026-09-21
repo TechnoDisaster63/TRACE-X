@@ -1,6 +1,6 @@
-# TRACE-X — M01-M12 Prototype Requirements
+# TRACE-X prototype requirements
 #
-# Modules M01-M12 use ONLY the Python standard library
+# Runtime analysis uses only the Python standard library
 # (email, hashlib, re, html.parser, urllib.parse, dataclasses, argparse,
 # json, glob, pathlib, logging, uuid, textwrap, datetime, hashlib).
 #

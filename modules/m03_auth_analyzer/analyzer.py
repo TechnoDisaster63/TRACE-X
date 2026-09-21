@@ -68,17 +68,17 @@ def _dmarc_policy(auth_header: str) -> Optional[str]:
 
 
 INTERPRETATIONS = {
-    ("spf", "pass"): "SPF passed: the sending IP is authorized by the domain's SPF record. This does not confirm the message content is safe or that the visible From address is not spoofed at the display level.",
-    ("spf", "fail"): "SPF failed: the sending IP is NOT authorized by the claimed domain's SPF record. Strong signal of spoofing, but must be combined with other evidence.",
-    ("spf", "softfail"): "SPF soft-failed: the domain's policy suggests the sender is not authorized but does not hard-reject. Treat as suspicious.",
-    ("spf", "neutral"): "SPF neutral: the domain owner makes no assertion about the sending IP's legitimacy.",
-    ("spf", "none"): "No SPF record was evaluated or found.",
-    ("dkim", "pass"): "DKIM signature validated: the message was not altered in transit and the signing domain is confirmed. Does not confirm sender intent or content safety.",
-    ("dkim", "fail"): "DKIM signature failed validation: message may have been altered, or the signature is invalid/forged.",
-    ("dkim", "none"): "No DKIM signature was present to validate.",
-    ("dmarc", "pass"): "DMARC passed: SPF and/or DKIM aligned with the visible From domain per the domain's published policy. Reduces (does not eliminate) spoofing likelihood for the From domain.",
-    ("dmarc", "fail"): "DMARC failed: neither SPF nor DKIM produced an aligned pass for the visible From domain. Significant spoofing indicator.",
-    ("dmarc", "none"): "No DMARC policy was evaluated.",
+    ("spf", "pass"): "The selected Authentication-Results header reports SPF=pass. TRACE-X did not query DNS or independently verify the sending IP. This does not confirm the message is safe.",
+    ("spf", "fail"): "The selected Authentication-Results header reports SPF=fail. Treat this as a reported signal and review it with other evidence.",
+    ("spf", "softfail"): "The selected Authentication-Results header reports SPF=softfail. Treat this as a reported signal and review it with other evidence.",
+    ("spf", "neutral"): "The selected Authentication-Results header reports SPF=neutral; TRACE-X did not independently evaluate the domain policy.",
+    ("spf", "none"): "No SPF result was found in the selected reported headers.",
+    ("dkim", "pass"): "The selected Authentication-Results header reports DKIM=pass. TRACE-X did not verify the signature or retrieve the public key, and the reported pass does not confirm the message is safe.",
+    ("dkim", "fail"): "The selected Authentication-Results header reports DKIM=fail. TRACE-X did not independently reproduce the validation.",
+    ("dkim", "none"): "No DKIM result was found in the selected reported headers.",
+    ("dmarc", "pass"): "The selected Authentication-Results header reports DMARC=pass. TRACE-X did not independently evaluate SPF/DKIM or retrieve the DMARC policy.",
+    ("dmarc", "fail"): "The selected Authentication-Results header reports DMARC=fail. Treat this as a reported signal and review it with other evidence.",
+    ("dmarc", "none"): "No DMARC result was found in the selected reported headers.",
 }
 
 
