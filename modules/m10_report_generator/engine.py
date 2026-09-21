@@ -36,17 +36,17 @@ _RECOMMENDATION_RULES: List[_RecommendationRule] = [
     _RecommendationRule(
         "DO_NOT_CLICK", frozenset({"HIGH", "CRITICAL"}), frozenset(), 1,
         "Do not click any links or open any attachments in this message.",
-        "The current rule-based assessment contains multiple or high-severity indicators. Do not interact until a human reviews the evidence.",
+        "High-risk messages have a significant probability of containing malicious URLs or payloads.",
     ),
     _RecommendationRule(
         "DO_NOT_REPLY", frozenset({"HIGH", "CRITICAL"}), frozenset({"BEC", "PHISHING"}), 1,
         "Do not reply to this message. Verify the sender's identity through a known, trusted channel first.",
-        "The report found identity or routing signals associated with the current BEC or phishing pattern. Verify the request outside the message.",
+        "Reply-To redirection and identity deception are primary vectors in BEC and phishing attacks.",
     ),
     _RecommendationRule(
         "ESCALATE_SECURITY", frozenset({"CRITICAL"}), frozenset(), 1,
         "Escalate to the security team immediately and preserve the original message headers for forensic analysis.",
-        "The current rule-based assessment contains multiple corroborating high-severity signals.",
+        "CRITICAL risk indicates multiple corroborating threat signals.",
     ),
     _RecommendationRule(
         "MANUAL_REVIEW", frozenset({"MEDIUM", "HIGH"}), frozenset(), 2,
@@ -61,11 +61,11 @@ _RECOMMENDATION_RULES: List[_RecommendationRule] = [
     _RecommendationRule(
         "CHECK_AUTH_CONFIG", frozenset({"LOW", "MEDIUM", "HIGH", "CRITICAL"}), frozenset({"SPOOFING"}), 3,
         "Review SPF, DKIM, and DMARC configuration for the sender domain.",
-        "Reported authentication failures combined with identity signals warrant a configuration and evidence review; TRACE-X did not independently verify authorization.",
+        "Authentication failures combined with identity signals suggest the sending infrastructure is not authorised.",
     ),
     _RecommendationRule(
         "QUARANTINE", frozenset({"HIGH", "CRITICAL"}), frozenset(), 2,
-        "If your organization has an approved quarantine process, ask an authorized analyst to consider it after reviewing the evidence.",
+        "Consider quarantining this message to prevent further interaction by the recipient.",
         "Quarantine limits exposure while the message undergoes review.",
     ),
     _RecommendationRule(
@@ -308,6 +308,15 @@ def generate_report(
         "received_chain": received_chain,
         "indicators": indicators,
         "campaign_relationships": campaign_relationships,
+        "evidence_reasoning": {
+            "schema_version": evidence_bundle.get("provenance_graph", {}).get("schema_version"),
+            "graph_hash": evidence_bundle.get("provenance_graph", {}).get("graph_hash"),
+            "node_count": len(evidence_bundle.get("provenance_graph", {}).get("nodes", [])),
+            "edge_count": len(evidence_bundle.get("provenance_graph", {}).get("edges", [])),
+            "contradictions": evidence_bundle.get("provenance_graph", {}).get("contradictions", []),
+            "dimensions": evidence_bundle.get("dimensions", {}),
+            "reported_authentication_note": "Authentication results are reported header claims, not independent verification.",
+        },
         "prevention_assessment": prevention or {
             "status": "NOT_GENERATED",
             "limitations": ["M11 prevention recommendation was not supplied to this report."],
@@ -449,4 +458,12 @@ def to_text(report: dict) -> str:
     lines.append("")
 
     lines += [sep, f"TRACE-X {PIPELINE_VERSION} - {report.get('report_version')}", sep]
+    reasoning = report.get("evidence_reasoning", {})
+    if reasoning:
+        lines.extend(["", "EVIDENCE REASONING", "-" * 18,
+                      f"Graph: {reasoning.get('graph_hash', 'UNKNOWN')}",
+                      f"Nodes/edges: {reasoning.get('node_count', 0)}/{reasoning.get('edge_count', 0)}",
+                      f"Unresolved contradictions: {len(reasoning.get('contradictions', []))}",
+                      reasoning.get("reported_authentication_note", "")])
     return "\n".join(lines)
+

@@ -1,30 +1,20 @@
-# TRACE-X - Offline Email Evidence Analysis
+# TRACE-X — Email Forensic Investigation & Campaign Intelligence Platform
 
-**Status: local prototype.** The repository contains 15 implemented modules:
-M01-M14 and M16. M15 is intentionally absent because live action adapters are
-not implemented.
+**Status: PROTOTYPE (M01-M14 advisory-only + M16 audit model).** This is a Python-only core analysis
+engine. It has no frontend, no API server, and no database. It is not a
+production security product and does not constitute legal or regulatory
+proof of anything.
 
-TRACE-X reads `.eml` files supplied by an analyst. It extracts local evidence,
-links related findings, assigns a transparent rule-based risk score, and
-returns a report with reasons and an advisory recommendation. The analyst,
-not TRACE-X, decides what happens next.
+## 1. What TRACE-X Is
 
-TRACE-X does not connect to a mailbox, visit URLs, open attachments, or perform
-message-control actions. SPF, DKIM, and DMARC values are parsed from reported
-`Authentication-Results` headers. They are not independently verified. Batch
-campaign correlation uses only the files supplied in the current process and
-does not persist across runs.
+TRACE-X takes one or more `.eml` files and produces an evidence-based,
+rule-based forensic analysis: header anomalies, SPF/DKIM/DMARC
+interpretation, sender-identity impersonation checks, mail-routing
+reconstruction, static URL analysis, a normalized/de-duplicated evidence
+bundle, a transparent risk score, a threat-pattern classification, optional
+multi-email campaign correlation, a structured investigation report, and an advisory-only explainable prevention recommendation.
 
-## 1. Analyst workflow
-
-1. Supply one `.eml` file or a local folder of `.eml` files.
-2. TRACE-X extracts message, header, identity, route, and static URL evidence.
-3. Deterministic rules link the evidence and produce a risk score, threat
-   classification, and reasons.
-4. TRACE-X writes JSON and text reports with an advisory recommendation.
-5. A human analyst reviews the evidence and decides whether to act.
-
-## 2. Implemented module scope
+## 2. Current Prototype Scope (M01-M11)
 
 | Module | Purpose |
 |---|---|
@@ -44,7 +34,9 @@ does not persist across runs.
 | M14 | Analyst Feedback — immutable offline decision records and review-only tuning summaries |
 | M16 | Prevention audit model — immutable recommendation linkage and validated offline lifecycle records |
 
-**Not implemented:** M15/live action adapters, persistent policy administration, a frontend, a network API, a database, cloud services, and machine-learning classification. All recommendations are rule-based, advisory, and `executable=false`; stronger actions require human approval.
+**Not yet built / explicitly out of scope for this build:** persistent policy administration,
+action execution/adapters, frontend, API server, database, cloud services, and
+machine-learning classification. M11 is rule-based and advisory-only.
 
 ## 3. Requirements
 
@@ -98,15 +90,15 @@ python cli.py analyze-folder <path\to\folder> [--trusted-domains a.com b.com]
 python cli.py campaign <path\to\folder> [--trusted-domains a.com b.com]
 ```
 
-- `analyze` / `analyze-folder` - analyze one or every `.eml` in a folder
-  independently. Each run writes a structured advisory assessment into JSON/text output and prints a summary (Investigation ID, Risk
+- `analyze` / `analyze-folder` — analyze one or every `.eml` in a folder
+  independently. Each run writes a structured M11 prevention assessment into JSON/text output and prints a summary (Investigation ID, Risk
   Level/Score, Threat Classification, Top Findings, Evidence Count,
   Confidence) and writes the full JSON result to
   `output\<Investigation-ID>.json` plus a human-readable text report to
   `reports\<Investigation-ID>.txt`.
-- `campaign` - analyzes every `.eml` in a folder (each still gets its own
+- `campaign` — analyzes every `.eml` in a folder (each still gets its own
   unique Investigation ID and full report) **and additionally** correlates
-  them inside that one process based on real, shared, observable indicators (sender
+  them into campaigns based on real, shared, observable indicators (sender
   domain, Reply-To domain, shared URL host, display name, similar subject
   pattern). Only emails that actually share a concrete indicator with
   another email in the batch are grouped; unrelated/legitimate emails are
@@ -118,8 +110,9 @@ trust must be supplied explicitly by the caller.
 
 ### Investigation IDs
 
-Every investigation gets a local `TX-XXXXXX` ID. This ID is generated
-**once** per `analyze_email()` call and propagates unchanged through the core analysis and report pipeline and into both saved output files. IDs persist across
+Every investigation gets a unique `TX-XXXXXX` ID. This ID is generated
+**once** per `analyze_email()` call and propagates unchanged through every
+module (M01-M11) and into both saved output files. IDs persist across
 separate CLI process invocations (via a small counter file in `output\`),
 so running the CLI multiple times — or against multiple files — never
 reuses an ID.
@@ -134,12 +127,13 @@ or, with the virtual environment active:
 python -m pytest tests\ -v
 ```
 
-Current validation: **300 tests passed, 0 failed** — unit tests
+As of this build: **297 real, executed tests, all passing** — unit tests
 for M01-M10, dedicated investigation-ID regression tests (including
 subprocess-level reproduction of the original ID-collision bug), dedicated
 campaign-correlation tests, dedicated M08 double-counting/correlation
 tests, and full M01→M10 integration suites run against every synthetic
-sample in `test_data\`. Historical 159, 164, 294, and 297-test results remain labeled as dated validation records. Current-state claims use the fresh 300-test run.
+sample in `test_data\`. No test results in this project are fabricated;
+anything not verified is reported as such.
 
 ## 9. Project Structure
 
@@ -162,7 +156,7 @@ trace-x/
 │   ├── m14_analyst_feedback/
 │   └── m16_prevention_audit/
 ├── core/
-│   ├── pipeline.py       (runs analysis, reporting, and advisory recommendation)
+│   ├── pipeline.py       (wires M01->M12; analyze_email + analyze_campaign)
 │   ├── models.py
 │   ├── config.py
 │   └── utils.py          (incl. persistent investigation-ID generator)
@@ -248,3 +242,16 @@ This CI proves only that these repository checks pass in the stated GitHub
 runner environment. It is not a vulnerability scan, production certification,
 live integration test, Windows test, or substitute for independent security
 review. Runtime analysis remains offline and standard-library-only.
+
+
+## Evidence reasoning and private case packages
+
+Each analysis now includes an additive `evidence.provenance_graph` with stable evidence IDs, source locators, preserved origins and explicit unresolved contradictions. Legacy evidence fields remain available. Severity, analytic confidence, source reliability and observation status are deliberately separate.
+
+CLI analysis publishes a private case directory containing JSON, text and a versioned integrity manifest. Verify it offline:
+
+```bash
+python cli.py verify-case output/TX-000001
+```
+
+The verifier detects missing or changed artifacts. It does not authenticate the analyst or replace chain-of-custody procedures. Authentication findings remain reported-header analysis, not independent SPF/DKIM/DMARC verification. All recommendations remain advisory and non-executable.

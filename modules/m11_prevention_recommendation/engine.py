@@ -240,6 +240,13 @@ def generate_prevention_recommendation(
         executable=False,
     )
     result = recommendation.to_dict()
+    contradictions = evidence_bundle.get("provenance_graph", {}).get("contradictions", [])
+    result["evidence_paths"] = sorted(e.get("evidence_id") for e in evidence_bundle.get("evidence", []) if e.get("evidence_id"))
+    result["unresolved_contradictions"] = [c["contradiction_id"] for c in contradictions if c.get("status") == "UNRESOLVED"]
+    if result["unresolved_contradictions"]:
+        result["requires_human_approval"] = True
+        result["executable"] = False
     result["policy_decision"] = policy_decision
     result["bec_assessment"] = bec_assessment
     return result
+

@@ -135,3 +135,91 @@ def next_investigation_id(state_dir: str = "output") -> str:
         _release_file_lock(lock_path)
 
     return new_investigation_id(n)
+
+
+
+def canonical_json_bytes(value) -> bytes:
+    """Stable UTF-8 JSON used for IDs, graph hashes and manifests."""
+    import json
+    return json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=False,
+                      default=str).encode("utf-8")
+
+
+def stable_object_id(prefix: str, value, length: int = 16) -> str:
+    return f"{prefix}-{sha256_bytes(canonical_json_bytes(value))[:length].upper()}"
+
+
+def _fsync_directory(path: str) -> None:
+    """Best-effort directory durability; unavailable on some Windows/filesystems."""
+    flags = getattr(os, "O_DIRECTORY", 0) | os.O_RDONLY
+    try:
+        fd = os.open(path, flags)
+    except OSError:
+        return
+    try:
+        os.fsync(fd)
+    except OSError:
+        pass
+    finally:
+        os.close(fd)
+
+
+def private_makedirs(path: str, mode: int = 0o700) -> None:
+    os.makedirs(path, mode=mode, exist_ok=True)
+    try:
+        os.chmod(path, mode)
+    except OSError:
+        pass
+
+
+def atomic_write_new(path: str, data: bytes, mode: int = 0o600) -> str:
+    """Publish one new file without overwrite or exposing a partial final file."""
+    import tempfile
+    parent = os.path.dirname(os.path.abspath(path))
+    private_makedirs(parent)
+    fd, temp_path = tempfile.mkstemp(prefix=".trace-x-", suffix=".tmp", dir=parent)
+    try:
+        try:
+            os.fchmod(fd, mode)
+        except OSError:
+            pass
+        with os.fdopen(fd, "wb") as stream:
+            stream.write(data)
+            stream.flush()
+            os.fsync(stream.fileno())
+        # Hard-link is an exclusive, non-overwriting publish on supported filesystems.
+        try:
+            os.link(temp_path, path)
+            os.unlink(temp_path)
+        except (AttributeError, OSError) as exc:
+            if os.path.exists(path):
+                raise FileExistsError(path) from exc
+            # Fallback for filesystems without hard links. Opening final exclusively
+            # preserves non-overwrite, though pair atomicity is provided by save_case.
+            out_fd = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, mode)
+            try:
+                with os.fdopen(out_fd, "wb") as out:
+                    out.write(data)
+                    out.flush()
+                    os.fsync(out.fileno())
+            finally:
+                try:
+                    os.unlink(temp_path)
+                except OSError:
+                    pass
+        try:
+            os.chmod(path, mode)
+        except OSError:
+            pass
+        _fsync_directory(parent)
+        return path
+    except Exception:
+        try:
+            os.close(fd)
+        except OSError:
+            pass
+        try:
+            os.unlink(temp_path)
+        except OSError:
+            pass
+        raise
