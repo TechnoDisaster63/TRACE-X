@@ -1,10 +1,9 @@
 """
 core/pipeline.py
 
-Runs the local evidence pipeline (M01-M10), then attaches the M11 advisory
-recommendation and M12 policy evaluation. M13, M14, and M16 remain explicit
-offline library workflows rather than automatic pipeline side effects. There
-is no frontend, network API, database, or live action adapter.
+Wires M01 -> M02 -> M03 -> M04 -> M05 -> M06 -> M07 -> M08 -> M09 -> M10
+into a single analyze_email() call. This is the integration layer that runs
+the full prototype end-to-end. No frontend, no API, no DB.
 """
 import json
 import os
@@ -36,11 +35,11 @@ def analyze_email(
     policies: Optional[List[dict]] = None,
 ) -> dict:
     """
-    Analyze one supplied .eml file and return one JSON-serializable investigation.
+    Run the full M01-M12 pipeline against a single .eml file.
     Returns a single JSON-serializable investigation result.
 
     A single, unique investigation_id is generated once here and
-    propagated unchanged through the core analysis and report path and into the
+    propagated unchanged through every module (M01-M10) and into the
     saved JSON/report/text output for this investigation.
     """
     start = time.time()
@@ -77,6 +76,7 @@ def analyze_email(
 
     result = {
         "investigation_id": investigation_id,
+        "analysis_configuration": {"trusted_domains": sorted(trusted_domains or []), "trusted_authserv_ids": sorted(trusted_authserv_ids or []), "policy_count": len(policies or [])},
         "file": parsed.source_filename or os.path.basename(str(path)),
         "file_sha256": parsed.file_sha256,
         "parse_warnings": parsed.parse_warnings,
@@ -161,6 +161,7 @@ def analyze_campaign(
                 "correlation_score": camp["correlation_score"],
                 "confidence": camp["confidence"],
                 "evidence": camp["evidence"],
+                "replay": {"batch_only": True, "member_investigation_ids": sorted(m["investigation_id"] for m in camp["related_emails"]), "shared_indicators": camp["shared_indicators"]},
             }
 
     # Re-attach campaign context into each investigation's report so the
@@ -176,3 +177,106 @@ def analyze_campaign(
         "investigations": investigations,
         "campaign_correlation": correlation,
     }
+
+
+
+def _build_manifest(result: dict, artifact_bytes: Dict[str, bytes], config_snapshot: Optional[dict] = None) -> dict:
+    """Build an honest, versioned local manifest. It detects tampering; it is not a signature."""
+    import platform
+    import subprocess
+    from datetime import datetime, timezone
+    from core.config import MANIFEST_VERSION
+    from core.utils import sha256_bytes
+    commit = "UNKNOWN"
+    try:
+        commit = subprocess.check_output(["git", "rev-parse", "HEAD"], stderr=subprocess.DEVNULL,
+                                         text=True, timeout=2).strip()
+    except Exception:
+        pass
+    artifacts = {name: {"sha256": sha256_bytes(data), "size": len(data)}
+                 for name, data in sorted(artifact_bytes.items())}
+    graph_hash = result.get("evidence", {}).get("provenance_graph", {}).get("graph_hash", "UNKNOWN")
+    return {"manifest_version": MANIFEST_VERSION, "investigation_id": result["investigation_id"],
+            "created_at_utc": datetime.now(timezone.utc).isoformat(),
+            "input": {"file": result.get("file"), "sha256": result.get("file_sha256"),
+                      "acquisition_mode": "ANALYST_SUPPLIED_FILE"},
+            "artifacts": artifacts,
+            "tool": {"name": "TRACE-X", "pipeline_version": "M01-M14+M16",
+                     "commit": commit, "offline": True, "deterministic_analysis": True},
+            "configuration": config_snapshot or result.get("analysis_configuration", {}),
+            "environment": {"python": platform.python_version(), "platform": platform.platform()},
+            "graph_hash": graph_hash,
+            "warnings": ["Integrity manifest only; not a digital signature or chain-of-custody attestation."]}
+
+
+def save_case(result: dict, case_root: Optional[str] = None, config_snapshot: Optional[dict] = None) -> dict:
+    """Publish JSON, text and manifest as one private case directory.
+
+    The case directory is renamed into view only after all staged files are flushed.
+    Existing cases are never overwritten. A crash before rename leaves no final case.
+    """
+    import shutil
+    import tempfile
+    from core.config import MANIFEST_VERSION, PRIVATE_DIR_MODE, PRIVATE_FILE_MODE
+    from core.utils import canonical_json_bytes, private_makedirs, safe_join, sha256_bytes, _fsync_directory
+    root = case_root or OUTPUT_DIR
+    private_makedirs(root, PRIVATE_DIR_MODE)
+    case_name = result["investigation_id"]
+    final_dir = safe_join(root, case_name)
+    if os.path.exists(final_dir):
+        raise FileExistsError(final_dir)
+    stage = tempfile.mkdtemp(prefix=f".{case_name}-", dir=root)
+    try:
+        try: os.chmod(stage, PRIVATE_DIR_MODE)
+        except OSError: pass
+        json_bytes = json.dumps(result, indent=2, default=str, sort_keys=True).encode("utf-8") + b"\n"
+        text_bytes = to_text(result["report"]).encode("utf-8")
+        payloads = {f"{case_name}.json": json_bytes, f"{case_name}.txt": text_bytes}
+        manifest = _build_manifest(result, payloads, config_snapshot)
+        payloads[f"{case_name}.manifest.json"] = canonical_json_bytes(manifest) + b"\n"
+        for name, data in payloads.items():
+            path = safe_join(stage, name)
+            fd = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, PRIVATE_FILE_MODE)
+            with os.fdopen(fd, "wb") as stream:
+                stream.write(data); stream.flush(); os.fsync(stream.fileno())
+            try: os.chmod(path, PRIVATE_FILE_MODE)
+            except OSError: pass
+        _fsync_directory(stage)
+        os.rename(stage, final_dir)  # same-directory all-or-nothing visibility
+        _fsync_directory(root)
+        return {"case_dir": final_dir, "json": safe_join(final_dir, f"{case_name}.json"),
+                "text": safe_join(final_dir, f"{case_name}.txt"),
+                "manifest": safe_join(final_dir, f"{case_name}.manifest.json")}
+    except Exception:
+        shutil.rmtree(stage, ignore_errors=True)
+        raise
+
+
+def verify_case(case_dir: str) -> dict:
+    """Verify manifest schema, names, hashes, sizes and provenance graph hash."""
+    from core.utils import canonical_json_bytes, sha256_bytes, sha256_file
+    case_dir = os.path.abspath(case_dir)
+    manifests = [n for n in os.listdir(case_dir) if n.endswith(".manifest.json")]
+    errors = []
+    if len(manifests) != 1:
+        return {"valid": False, "errors": ["Expected exactly one manifest"], "case_dir": case_dir}
+    manifest_path = safe_join(case_dir, manifests[0])
+    with open(manifest_path, encoding="utf-8") as stream: manifest = json.load(stream)
+    if manifest.get("manifest_version") != "1.0": errors.append("Unsupported manifest version")
+    for name, expected in manifest.get("artifacts", {}).items():
+        if name != os.path.basename(name) or safe_join(case_dir, name) != os.path.join(case_dir, name):
+            errors.append(f"Unsafe artifact name: {name}"); continue
+        path = safe_join(case_dir, name)
+        if not os.path.isfile(path): errors.append(f"Missing artifact: {name}"); continue
+        if os.path.getsize(path) != expected.get("size"): errors.append(f"Size mismatch: {name}")
+        if sha256_file(path) != expected.get("sha256"): errors.append(f"SHA-256 mismatch: {name}")
+    json_name = f"{manifest.get('investigation_id')}.json"
+    json_path = safe_join(case_dir, json_name)
+    if os.path.isfile(json_path):
+        try:
+            with open(json_path, encoding="utf-8") as stream: result = json.load(stream)
+            actual_graph = result.get("evidence", {}).get("provenance_graph", {}).get("graph_hash")
+            if actual_graph != manifest.get("graph_hash"): errors.append("Provenance graph hash mismatch")
+        except (ValueError, OSError) as exc: errors.append(f"Invalid investigation JSON: {exc}")
+    return {"valid": not errors, "errors": errors, "case_dir": case_dir,
+            "investigation_id": manifest.get("investigation_id"), "manifest": manifest_path}
