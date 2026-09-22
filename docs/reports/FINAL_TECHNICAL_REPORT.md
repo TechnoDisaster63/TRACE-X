@@ -11,7 +11,7 @@ TRACE-X is now a tested offline email-forensics and advisory prevention prototyp
 
 ## 2. Repository baseline
 
-Python standard-library runtime plus pytest for tests. Existing CLI: analyze, analyze-folder, campaign. Fresh environment/test commands are in BASELINE_VALIDATION.md. Original audited baseline was 164 passing tests; the exact integration base (`911be1011fc70a166789cb2b01f45524a5782f56`) had 294 passing tests; the final documentation branch had 297 passing tests; current main has 300 passing tests.
+Python standard-library runtime plus pytest for tests. Existing CLI: analyze, analyze-folder, campaign. Fresh environment/test commands are in ../testing/BASELINE_VALIDATION.md. Original audited baseline was 164 passing tests; the exact integration base (`911be1011fc70a166789cb2b01f45524a5782f56`) had 294 passing tests; the final documentation branch had 297 passing tests; current main has 300 passing tests.
 
 ## 3. Existing features verified
 
@@ -27,7 +27,7 @@ M11 advisory recommendation and counterfactuals; BEC corroboration/safeguards; M
 
 ## 6-9. Files, architecture, and data models
 
-New modules: m11, m12, m13, m14, m16. New frozen typed models: recommendation, policy, BEC indicator/assessment, feedback, lifecycle/event. Pipeline appends prevention after risk/graph and embeds it in M10 reports. Detailed paths/interfaces are in SOURCE_ARCHITECTURE_MAP.md and PREVENTION_ARCHITECTURE.md.
+New modules: m11, m12, m13, m14, m16. New frozen typed models: recommendation, policy, BEC indicator/assessment, feedback, lifecycle/event. Pipeline appends prevention after risk/graph and embeds it in M10 reports. Detailed paths/interfaces are in ../architecture/SOURCE_ARCHITECTURE_MAP.md and ../architecture/PREVENTION_ARCHITECTURE.md.
 
 ## 10. CLI changes
 
@@ -49,11 +49,11 @@ Single-run local wall times: legitimate 122 ms; phishing 249 ms; BEC 143 ms; mal
 
 ## 16. Implemented versus planned
 
-IMPLEMENTED/PARTIAL/DESIGNED/FUTURE/NOT SUPPORTED labels are in IMPLEMENTATION_STATUS.md and each specification. Persistent secure storage, API/UI, live integrations, external intelligence, and ML remain unimplemented.
+IMPLEMENTED/PARTIAL/DESIGNED/FUTURE/NOT SUPPORTED labels are in ../project/IMPLEMENTATION_STATUS.md and each specification. Persistent secure storage, API/UI, live integrations, external intelligence, and ML remain unimplemented.
 
 ## 17. Known limitations
 
-See LIMITATIONS_AND_NON_GOALS.md. Key limits: reported-header auth, heuristic decisions, plaintext reports, no authenticated actors/persistence/live controls.
+See ../security/LIMITATIONS_AND_NON_GOALS.md. Key limits: reported-header auth, heuristic decisions, plaintext reports, no authenticated actors/persistence/live controls.
 
 ## 18. Future improvements
 
@@ -61,7 +61,7 @@ Privacy/redaction/retention, forensic manifest/atomic writes, counter removal, C
 
 ## 19. Hackathon demonstration flow
 
-See HACKATHON_DEMO.md. Fresh demos: legitimate 0/LOW/CLEAN/REQUEST_ADDITIONAL_ANALYSIS; phishing 77/HIGH/PHISHING/HOLD_FOR_REVIEW; BEC 52/MEDIUM/BEC/REQUIRE_ANALYST_REVIEW; malformed 48/MEDIUM with five warnings; campaign found one group among three fixtures. Every recommendation had executable=false.
+See ../guides/HACKATHON_DEMO.md. Fresh demos: legitimate 0/LOW/CLEAN/REQUEST_ADDITIONAL_ANALYSIS; phishing 77/HIGH/PHISHING/HOLD_FOR_REVIEW; BEC 52/MEDIUM/BEC/REQUIRE_ANALYST_REVIEW; malformed 48/MEDIUM with five warnings; campaign found one group among three fixtures. Every recommendation had executable=false.
 
 ## 20. Startup product value
 

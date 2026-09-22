@@ -5,7 +5,7 @@ Status: inventory of the current M01-M10 baseline. This file distinguishes verif
 
 ## Project root and layout
 
-The project root contains `cli.py`, `core/`, `modules/`, `tests/`, `test_data/`, `output/`, `reports/`, `README.md`, `AUDIT_REPORT.md`, batch launchers, and `requirements.txt`. There are 67 tracked files in the audited package. Python source totals about 4,867 lines including tests.
+The project root contains `cli.py`, `core/`, `modules/`, `tests/`, `test_data/`, `output/`, `reports/`, `README.md`, `../reports/AUDIT_REPORT.md`, batch launchers, and `requirements.txt`. There are 67 tracked files in the audited package. Python source totals about 4,867 lines including tests.
 
 ## Processing flow
 

@@ -1,7 +1,6 @@
 # TRACE-X — Email Forensic Investigation & Campaign Intelligence Platform
 
-**Status: PROTOTYPE (M01-M14 advisory-only + M16 audit model).** This is a Python-only core analysis
-engine. It has no frontend, no API server, and no database. It is not a
+**Status: PROTOTYPE (M01-M14 advisory-only + M16 audit model).** This is a Python analysis engine with a local, loopback-only demo UI. It has no network-facing frontend, API server, or database. It is not a
 production security product and does not constitute legal or regulatory
 proof of anything.
 
@@ -14,7 +13,7 @@ reconstruction, static URL analysis, a normalized/de-duplicated evidence
 bundle, a transparent risk score, a threat-pattern classification, optional
 multi-email campaign correlation, a structured investigation report, and an advisory-only explainable prevention recommendation.
 
-## 2. Current Prototype Scope (M01-M11)
+## 2. Current Prototype Scope (M01-M14 + M16)
 
 | Module | Purpose |
 |---|---|
@@ -168,13 +167,22 @@ trace-x/
 │   ├── malformed/
 │   └── edge_cases/
 ├── tests/
+├── docs/                 (architecture, guides, project, reports, security, specifications, testing)
+├── demo_ui/              (loopback-only local demo interface)
+├── demo_scenarios/
 ├── reports/
 ├── output/
 ├── cli.py
+├── demo.py
 ├── requirements.txt
+├── START-TRACE-X.bat
 ├── setup.bat
 └── run.bat
 ```
+
+## Documentation
+
+Supporting architecture, security, testing, project, and report documents are indexed in [`docs/README.md`](docs/README.md).
 
 ## 10. Security Limitations
 
@@ -226,7 +234,7 @@ trace-x/
 
 ## Audit hardening applied (2026-09-20)
 
-This audited package removes the bundled virtual environment, caches, and prior generated reports. It enforces documented parser collection limits, rejects oversized byte input, prevents silent report overwrite, recovers the investigation counter from existing outputs, supports output paths through `TRACE_X_OUTPUT_DIR` / `TRACE_X_REPORTS_DIR`, and fixes exact shortener-domain matching. See `AUDIT_REPORT.md` for remaining limitations.
+This audited package removes the bundled virtual environment, caches, and prior generated reports. It enforces documented parser collection limits, rejects oversized byte input, prevents silent report overwrite, recovers the investigation counter from existing outputs, supports output paths through `TRACE_X_OUTPUT_DIR` / `TRACE_X_REPORTS_DIR`, and fixes exact shortener-domain matching. See `docs/reports/AUDIT_REPORT.md` for remaining limitations.
 
 ## Continuous integration
 

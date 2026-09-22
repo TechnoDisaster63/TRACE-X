@@ -9,7 +9,7 @@
 
 TRACE-X is a validated local prototype, not a production security control. The current source implements M01-M14 and M16; M15/live action adapters are absent. Fresh validation collected 300 tests and passed all 300 after confirming the current fixture for `test_empty_email` is genuinely zero bytes. The previously delivered ZIP contained a one-byte empty-email fixture and reproduced the requested failure at 299 passed / 1 failed; this was a stale-package defect, not a parser defect.
 
-The CLI, saved JSON, text reports, batch campaign correlation, and recommendation boundary were exercised. Every observed recommendation remained advisory with `executable=false`; strong actions required human approval. No critical or high confirmed security vulnerability was found in the focused review. One confirmed documentation contradiction was corrected: `PREVENTION_ARCHITECTURE.md` still described implemented M12 and M13/M14/M16 slices as future work.
+The CLI, saved JSON, text reports, batch campaign correlation, and recommendation boundary were exercised. Every observed recommendation remained advisory with `executable=false`; strong actions required human approval. No critical or high confirmed security vulnerability was found in the focused review. One confirmed documentation contradiction was corrected: `../architecture/PREVENTION_ARCHITECTURE.md` still described implemented M12 and M13/M14/M16 slices as future work.
 
 The existing six-slide presentation was accurate except for the stale 297-test count. Slides 1, 4, and 6 were minimally corrected to 300, then exported and visually inspected. No redesign was performed.
 
@@ -42,7 +42,7 @@ The existing six-slide presentation was accurate except for the stale 297-test c
 ## C. Confirmed issues
 
 1. **Stale ZIP empty-email fixture - Low.** The supplied ZIP's `test_data/malformed/malformed_empty.eml` was one byte, so `test_empty_email` failed. Current live `main` contains a true zero-byte fixture.
-2. **Stale architecture status text - Low.** `PREVENTION_ARCHITECTURE.md` called implemented M12 and M13/M14/M16 slices designed/future work.
+2. **Stale architecture status text - Low.** `../architecture/PREVENTION_ARCHITECTURE.md` called implemented M12 and M13/M14/M16 slices designed/future work.
 3. **Stale presentation count - Low.** Slides 1, 4, and 6 reported 297 tests while current source collects 300.
 4. **Separate case writes - Medium design limitation.** JSON and text reports are written separately, so a process interruption can leave a partial pair. This is documented and was not changed because an atomic case transaction requires a broader storage decision.
 
@@ -50,7 +50,7 @@ The existing six-slide presentation was accurate except for the stale 297-test c
 
 | File path | Function or section | Reason | Risk | Validation |
 |---|---|---|---|---|
-| `PREVENTION_ARCHITECTURE.md` | M12 and M13-M16 status sections | Remove contradiction with executable code and tests | Low | Documentation assertion tests and full suite pass |
+| `../architecture/PREVENTION_ARCHITECTURE.md` | M12 and M13-M16 status sections | Remove contradiction with executable code and tests | Low | Documentation assertion tests and full suite pass |
 | Corrected presentation PPTX/PDF | Slides 1, 4, 6 | Replace stale 297 with observed 300 | Low | Text extraction, six-slide count, PDF export, full-slide pixel inspection |
 | Final report | Sections A-L | Record evidence, changes, limits, and reproducible outcomes | Low | Cross-checked against fresh test/CLI outputs and source |
 
