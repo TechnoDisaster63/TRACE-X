@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-TRACE-X CLI Prototype (M01-M10)
+TRACE-X CLI Prototype (M01-M14 + M16 + M17 + M18)
 
 Usage:
     python cli.py analyze <path/to/email.eml>

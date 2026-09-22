@@ -28,8 +28,20 @@ def test_ci_actions_are_pinned_to_full_commit_shas():
 def test_ci_dependency_file_is_exact_and_hash_locked():
     lines = LOCK.read_text(encoding='utf-8').splitlines()
     requirements = [line for line in lines if line and not line.startswith(('#', ' '))]
-    hashes = [line.strip() for line in lines if line.strip().startswith('--hash=sha256:')]
+    hashes = [line.strip().removesuffix(' \\').strip() for line in lines if line.strip().startswith('--hash=sha256:')]
     assert requirements
     assert all(re.fullmatch(r'[A-Za-z0-9_.-]+==[^ ;\\]+ \\', line) for line in requirements)
-    assert len(hashes) == len(requirements)
     assert all(re.fullmatch(r'--hash=sha256:[0-9a-f]{64}', value) for value in hashes)
+    # Every requirement carries at least one verified hash; platform/version-specific
+    # wheels may add more hashes under the same requirement so the lock installs
+    # across CPython versions, not only on the CI runner.
+    current = None
+    counts = dict.fromkeys(requirements, 0)
+    for line in lines:
+        if line and not line.startswith(('#', ' ')):
+            current = line
+        elif line.strip().startswith('--hash=sha256:'):
+            assert current is not None
+            counts[current] += 1
+    assert all(count >= 1 for count in counts.values())
+    assert len(hashes) == sum(counts.values())

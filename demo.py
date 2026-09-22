@@ -57,6 +57,25 @@ def _view(result: dict, package: dict, verification: dict) -> dict:
         "evidence": evidence,
         "contradictions": result["evidence"]["provenance_graph"]["contradictions"],
         "graph_hash": result["evidence"]["provenance_graph"]["graph_hash"],
+        "geo_infrastructure": {
+            "database": result["geo_infrastructure"]["database"],
+            "database_available": result["geo_infrastructure"]["database_available"],
+            "hop_intelligence": result["geo_infrastructure"]["hop_intelligence"],
+            "summary": result["geo_infrastructure"]["summary"],
+            "capabilities": result["geo_infrastructure"]["capabilities"],
+            "limitations": result["geo_infrastructure"]["limitations"],
+        },
+        "ml_phishing_signal": {
+            "available": result["ml_phishing_signal"]["available"],
+            "status": result["ml_phishing_signal"]["status"],
+            "model_version": result["ml_phishing_signal"]["model_version"],
+            "phishing_probability": result["ml_phishing_signal"]["phishing_probability"],
+            "top_contributing_tokens": result["ml_phishing_signal"]["top_contributing_tokens"],
+            "unavailable_reason": result["ml_phishing_signal"].get("unavailable_reason"),
+            "advisory_only": result["ml_phishing_signal"]["advisory_only"],
+            "executable": result["ml_phishing_signal"]["executable"],
+            "limitations": result["ml_phishing_signal"].get("limitations", []),
+        },
         "recommendation": prevention,
         "case_package": {
             "case_dir": package["case_dir"],
@@ -155,7 +174,8 @@ def main() -> None:
     server = ThreadingHTTPServer((args.host, args.port), DemoHandler)
     url = f"http://127.0.0.1:{server.server_port}/"
     print(f"TRACE-X offline demo: {url}", flush=True)
-    print("Loopback-only. No URL visits, attachment execution, cloud service, API, database, or ML.", flush=True)
+    print("Loopback-only. No URL visits, attachment execution, cloud service, API, or database.", flush=True)
+    print("M17 geo intelligence and the M18 advisory ML signal run fully offline; neither changes the deterministic score.", flush=True)
     if not args.no_browser: webbrowser.open(url)
     try: server.serve_forever()
     except KeyboardInterrupt: pass

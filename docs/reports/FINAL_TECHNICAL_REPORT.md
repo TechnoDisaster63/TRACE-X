@@ -1,3 +1,5 @@
+> **Superseded snapshot (dated 2026-09-21).** This report describes the 15-module (M01-M14 + M16), 300-test state. Current `main` implements 17 modules (M01-M14 + M16 + M17 geo intelligence + M18 advisory ML signal) with 328 tests passing (validated 2026-09-22). Readiness verdicts below still stand; see `docs/project/IMPLEMENTATION_STATUS.md` for the current record.
+
 # TRACE-X Final Technical Report
 
 Date: 2026-09-20
