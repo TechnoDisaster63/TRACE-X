@@ -180,7 +180,10 @@ def atomic_write_new(path: str, data: bytes, mode: int = 0o600) -> str:
     fd, temp_path = tempfile.mkstemp(prefix=".trace-x-", suffix=".tmp", dir=parent)
     try:
         try:
-            os.fchmod(fd, mode)
+            if hasattr(os, "fchmod"):
+                os.fchmod(fd, mode)
+            else:
+                os.chmod(temp_path, mode)
         except OSError:
             pass
         with os.fdopen(fd, "wb") as stream:

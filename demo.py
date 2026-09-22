@@ -178,7 +178,13 @@ class DemoHandler(BaseHTTPRequestHandler):
                 data = upload.file.read(MAX_UPLOAD + 1)
                 if len(data) > MAX_UPLOAD: raise ValueError("Input exceeds the 25 MB safety limit.")
                 fd, temp_path = tempfile.mkstemp(prefix="trace-x-demo-", suffix=".eml")
-                os.fchmod(fd, stat.S_IRUSR | stat.S_IWUSR)
+                try:
+                    if hasattr(os, "fchmod"):
+                        os.fchmod(fd, stat.S_IRUSR | stat.S_IWUSR)
+                    else:
+                        os.chmod(temp_path, stat.S_IRUSR | stat.S_IWUSR)
+                except OSError:
+                    pass
                 with os.fdopen(fd, "wb") as stream: stream.write(data)
                 input_path = temp_path
             try:
