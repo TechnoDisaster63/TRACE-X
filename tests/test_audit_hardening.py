@@ -33,3 +33,12 @@ def test_save_refuses_overwrite(tmp_path):
     save_investigation(result, str(tmp_path))
     with pytest.raises(FileExistsError):
         save_investigation(result, str(tmp_path))
+
+def test_atomic_write_new_works_without_fchmod(monkeypatch, tmp_path):
+    """Windows has no os.fchmod; path chmod must preserve the safe write."""
+    import core.utils as utils
+
+    monkeypatch.delattr(utils.os, "fchmod", raising=False)
+    target = tmp_path / "case.json"
+    utils.atomic_write_new(str(target), b'{"ok":true}')
+    assert target.read_bytes() == b'{"ok":true}'

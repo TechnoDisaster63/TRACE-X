@@ -92,5 +92,47 @@ class DemoInterfaceTests(unittest.TestCase):
         self.assertIn(".eml", json.loads(raw)["error"])
 
 
+class WindowsCompatibilityTests(unittest.TestCase):
+    def test_uploaded_analysis_without_os_fchmod(self):
+        """Run the complete upload/analyze/package path as on Windows."""
+        with tempfile.TemporaryDirectory() as tmp_name:
+            tmp = Path(tmp_name)
+            (tmp / "sitecustomize.py").write_text(
+                "import os\nif hasattr(os, 'fchmod'):\n    del os.fchmod\n", encoding="utf-8")
+            env = os.environ.copy()
+            env["PYTHONPATH"] = str(tmp)
+            env["TRACE_X_OUTPUT_DIR"] = str(tmp / "output")
+            env["TRACE_X_REPORTS_DIR"] = str(tmp / "reports")
+            proc = subprocess.Popen(
+                [sys.executable, "demo.py", "--port", "0", "--no-browser"], cwd=ROOT,
+                env=env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+            try:
+                for _ in range(20):
+                    line = proc.stdout.readline().strip()
+                    if line.startswith("TRACE-X offline demo: http://127.0.0.1:"):
+                        port = int(line.rsplit(":", 1)[1].rstrip("/"))
+                        break
+                else:
+                    self.fail(f"Demo server did not start without fchmod; last output: {line}")
+
+                boundary = "----TRACE-X-WINDOWS"
+                eml = ("From: tester@example.test\r\nTo: analyst@example.test\r\n"
+                       "Subject: Safe upload\r\nMessage-ID: <windows@example.test>\r\n\r\nHello")
+                body = (f"--{boundary}\r\nContent-Disposition: form-data; name=\"eml\"; "
+                        f"filename=\"windows.eml\"\r\nContent-Type: message/rfc822\r\n\r\n"
+                        f"{eml}\r\n--{boundary}--\r\n").encode()
+                conn = HTTPConnection("127.0.0.1", port, timeout=10)
+                conn.request("POST", "/api/analyze", body=body, headers={
+                    "Content-Type": f"multipart/form-data; boundary={boundary}",
+                    "Content-Length": str(len(body)),
+                })
+                response = conn.getresponse(); raw = response.read(); conn.close()
+                self.assertEqual(response.status, 200, raw)
+                data = json.loads(raw)
+                self.assertTrue(data["case_package"]["verification"]["valid"])
+            finally:
+                proc.terminate(); proc.wait(timeout=5)
+
+
 if __name__ == "__main__":
     unittest.main()
