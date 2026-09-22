@@ -27,6 +27,8 @@ from typing import Any, Dict, List, Set
 # every source tag actually emitted by the analyzers.
 # ---------------------------------------------------------------------------
 SOURCE_TO_SIGNAL: Dict[str, str] = {
+    "geo:origin_country": "INFRASTRUCTURE_COUNTRY",
+    "geo:private_ip_hop": "PRIVATE_INFRASTRUCTURE_HOP",
     "identity:lookalike_domain": "LOOKALIKE_DOMAIN",
     "identity:homoglyph_lookalike": "LOOKALIKE_DOMAIN",
     "identity:punycode_domain": "LOOKALIKE_DOMAIN",
@@ -56,6 +58,8 @@ SOURCE_TO_SIGNAL: Dict[str, str] = {
 }
 
 NODE_TYPE_FOR_SIGNAL: Dict[str, str] = {
+    "INFRASTRUCTURE_COUNTRY": "INFRASTRUCTURE",
+    "PRIVATE_INFRASTRUCTURE_HOP": "INFRASTRUCTURE",
     "LOOKALIKE_DOMAIN": "DOMAIN",
     "SENDER_DOMAIN_MISMATCH": "DOMAIN",
     "FROM_DISPLAY_SPOOFING": "EMAIL_ADDRESS",
@@ -70,6 +74,8 @@ NODE_TYPE_FOR_SIGNAL: Dict[str, str] = {
 }
 
 EDGE_TYPE_FOR_SIGNAL: Dict[str, str] = {
+    "INFRASTRUCTURE_COUNTRY": "OBSERVED_AT_INFRASTRUCTURE",
+    "PRIVATE_INFRASTRUCTURE_HOP": "ROUTED_THROUGH",
     "LOOKALIKE_DOMAIN": "IMPERSONATES",
     "SENDER_DOMAIN_MISMATCH": "SENDS_FROM",
     "FROM_DISPLAY_SPOOFING": "IMPERSONATES",
@@ -84,6 +90,8 @@ EDGE_TYPE_FOR_SIGNAL: Dict[str, str] = {
 }
 
 NODE_LABELS: Dict[str, str] = {
+    "INFRASTRUCTURE_COUNTRY": "Probable infrastructure country",
+    "PRIVATE_INFRASTRUCTURE_HOP": "Internal/non-routable mail hop",
     "LOOKALIKE_DOMAIN": "Look-alike / Spoofed Domain",
     "SENDER_DOMAIN_MISMATCH": "Sender Domain Mismatch",
     "FROM_DISPLAY_SPOOFING": "Display Name Spoofing",
@@ -291,6 +299,8 @@ def build_threat_graph(evidence_bundle: dict, risk: dict, email_id: str = "unkno
                 "severity": rf.get("severity"),
                 "effective_weight": rf.get("effective_weight"),
                 "finding": rf.get("finding"),
+                "source": rf.get("source"),
+                "evidence": next((e.get("evidence") for e in evidence_bundle.get("evidence", []) if e.get("evidence_id") == rf.get("evidence_id")), None),
             },
         })
         edge_type = EDGE_TYPE_FOR_SIGNAL.get(signal, "ASSOCIATED_WITH")
@@ -303,6 +313,23 @@ def build_threat_graph(evidence_bundle: dict, risk: dict, email_id: str = "unkno
             "confidence": "HIGH" if rf.get("severity") in ("HIGH", "CRITICAL") else "MEDIUM",
             "source_module": rf.get("module"),
         })
+
+    # Preserve non-risk-bearing M17 country observations as infrastructure
+    # nodes. They enrich correlation without inflating M08 risk scores.
+    for evidence in evidence_bundle.get("evidence", []):
+        if evidence.get("source") != "geo:origin_country":
+            continue
+        node_id = str(uuid.uuid4())
+        nodes.append({"node_id": node_id, "node_type": "INFRASTRUCTURE",
+                      "value": evidence.get("evidence"), "label": "Probable infrastructure country",
+                      "source_module": evidence.get("module"), "evidence_id": evidence.get("evidence_id"),
+                      "risk_bearing": False,
+                      "attributes": {"source": evidence.get("source"), "evidence": evidence.get("evidence"),
+                                     "confidence": evidence.get("confidence")}})
+        edges.append({"edge_id": str(uuid.uuid4()), "edge_type": "OBSERVED_AT_INFRASTRUCTURE",
+                      "source_node": email_node_id, "target_node": node_id,
+                      "label": "observed at probable infrastructure", "confidence": evidence.get("confidence", "MEDIUM"),
+                      "source_module": evidence.get("module")})
 
     active_types = set(active.keys())
     threat_patterns = _detect_patterns(active_types)
@@ -337,6 +364,40 @@ def build_threat_graph(evidence_bundle: dict, risk: dict, email_id: str = "unkno
         "risk_level": risk_level,
         "built_at": datetime.now(timezone.utc).isoformat(),
     }
+
+
+def build_sender_trust_graph(feedback_records: list, sender: str, content_signal_present: bool = False) -> dict:
+    """Build an offline relationship graph from explicit analyst outcomes only.
+
+    No feedback history is treated as unknown, never as malicious. A first-seen
+    signal is emitted only when a separate payment/credential content signal is present.
+    """
+    nodes, edges, legitimate, malicious = [], [], 0, 0
+    sender_norm = (sender or "").strip().lower()
+    for raw in feedback_records or []:
+        record = raw.to_dict() if hasattr(raw, "to_dict") else raw
+        details = record.get("details") or {}
+        observed = str(details.get("sender") or details.get("from_address") or "").strip().lower()
+        if not observed or observed != sender_norm:
+            continue
+        decision = record.get("decision_type")
+        if decision in {"TRUSTED_SENDER", "BENIGN_BUSINESS_EMAIL"}: legitimate += 1
+        if decision in {"SUSPICIOUS_SENDER_CONFIRMED", "THREAT_ESCALATED", "FALSE_NEGATIVE"}: malicious += 1
+        edges.append({"edge_type": "ANALYST_CONFIRMED_OUTCOME", "sender": sender_norm,
+                      "decision_type": decision, "feedback_id": record.get("feedback_id")})
+    if sender_norm:
+        nodes.append({"node_type": "SENDER", "value": sender_norm,
+                      "attributes": {"confirmed_legitimate": legitimate, "confirmed_malicious": malicious}})
+    findings = []
+    if sender_norm and legitimate == 0 and content_signal_present:
+        findings.append({"finding_id": "TRUST-001", "finding": "No prior confirmed-legitimate correlation for sender",
+                         "severity": "MEDIUM", "evidence": f"sender={sender_norm}; confirmed_legitimate=0; paired_content_signal=true",
+                         "source": "trust:first_seen_sensitive_request", "confidence": "MEDIUM", "category": "RELATIONSHIP",
+                         "module": "M09_TRUST_GRAPH"})
+    return {"nodes": nodes, "edges": edges, "findings": findings,
+            "summary": {"sender": sender_norm, "confirmed_legitimate": legitimate, "confirmed_malicious": malicious},
+            "limitations": ["Only explicit analyst feedback supplied to this call is used.",
+                            "Absence of history is unknown, not proof of malice."]}
 
 
 # ===========================================================================

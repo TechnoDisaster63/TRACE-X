@@ -7,6 +7,8 @@ not establish BEC and never trigger execution.
 from __future__ import annotations
 
 import re
+import math
+from collections import Counter
 from dataclasses import asdict, dataclass, field
 from typing import Any, Dict, List
 
@@ -70,6 +72,46 @@ _AUTH_SOURCES = {
 }
 _URL_SOURCES = {"url:structural_analysis"}
 
+# Versioned, auditable reference phrases. This is similarity matching, not a
+# trained classifier: no labeled corpus or fabricated accuracy claim is used.
+_SIMILARITY_REFERENCE_VERSION = "BEC-PHRASES-2026-09-v1"
+_SIMILARITY_REFERENCES = (
+    ("SIM-PAYMENT-DISCUSSED", "process this payment as discussed"),
+    ("SIM-ACCOUNT-UPDATE", "update the bank account details for future payments"),
+    ("SIM-CREDENTIAL-VERIFY", "verify your account credentials using the secure link"),
+    ("SIM-CONFIDENTIAL-TRANSFER", "keep this confidential and arrange the transfer today"),
+)
+
+def _tokens(text: str) -> List[str]:
+    return re.findall(r"[a-z0-9]+", (text or "").lower())
+
+def _tfidf_cosine(document: str, reference: str, corpus: List[str]) -> float:
+    """Small pure-Python TF-IDF/cosine implementation for local explainability."""
+    docs = [_tokens(x) for x in corpus]
+    vocab = set(_tokens(document)) | set(_tokens(reference))
+    if not vocab: return 0.0
+    def vec(tokens):
+        counts, total = Counter(tokens), max(1, len(tokens))
+        return {term: (counts[term]/total) * (math.log((1+len(docs))/(1+sum(term in d for d in docs)))+1) for term in vocab}
+    a, b = vec(_tokens(document)), vec(_tokens(reference))
+    denom = math.sqrt(sum(x*x for x in a.values())) * math.sqrt(sum(x*x for x in b.values()))
+    return sum(a[t]*b[t] for t in vocab)/denom if denom else 0.0
+
+def similarity_matches(text: str, threshold: float = 0.55) -> List[dict]:
+    corpus = [phrase for _, phrase in _SIMILARITY_REFERENCES]
+    # Sliding windows keep long benign messages from diluting a short request.
+    words = _tokens(text)
+    windows = [" ".join(words[i:i+12]) for i in range(max(1, len(words)-11))] or [text]
+    matches = []
+    for ref_id, phrase in _SIMILARITY_REFERENCES:
+        score = max((_tfidf_cosine(window, phrase, corpus) for window in windows), default=0.0)
+        if score >= threshold:
+            matches.append({"reference_id": ref_id, "reference_phrase": phrase,
+                            "similarity": round(score, 4), "threshold": threshold,
+                            "reference_version": _SIMILARITY_REFERENCE_VERSION})
+    return matches
+
+
 
 def _text(parsed_email: dict) -> str:
     # Analysis is local. Indicator output never copies body text.
@@ -100,6 +142,13 @@ def assess_bec(parsed_email: dict, evidence_bundle: dict, threat_graph: dict) ->
     evidence_bundle = evidence_bundle or {}
     content = _text(parsed_email)
     indicators: List[BECIndicator] = []
+    for match in similarity_matches(content):
+        indicators.append(BECIndicator(
+            f"BEC-SIM-{match['reference_id']}", "CONTENT", "similarity_reference_match", [],
+            f"Offline TF-IDF/cosine similarity matched reference {match['reference_id']} "
+            f"({match['reference_phrase']!r}) at {match['similarity']:.4f} >= {match['threshold']:.2f}; "
+            f"reference set {match['reference_version']}. Similarity is not a trained classifier or proof of intent.",
+        ))
 
     for indicator_id, label, pattern in _CONTENT_RULES:
         if pattern.search(content):
@@ -170,7 +219,8 @@ def assess_bec(parsed_email: dict, evidence_bundle: dict, threat_graph: dict) ->
         counterfactuals=counterfactuals,
         explanation=explanation,
         limitations=[
-            "Content and behavioral indicators are deterministic heuristics, not proof of intent.",
+            "Content, behavioral, and TF-IDF/cosine similarity indicators are deterministic heuristics, not proof of intent.",
+            "The similarity layer is not a trained classifier and has no claimed accuracy metric.",
             "No relationship history, mailbox telemetry, external reputation, or financial system was queried.",
             "No message, payment, hold, quarantine, or external action is performed.",
         ],

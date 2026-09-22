@@ -6,3 +6,5 @@
 #
 # pytest is required to run the test suite.
 pytest>=7.4,<10
+# Local-only MMDB reader for bundled DB-IP Lite Country data (no runtime network access).
+maxminddb==2.8.2

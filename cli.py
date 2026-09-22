@@ -8,12 +8,17 @@ Usage:
 """
 import argparse
 import glob
+import json
+from datetime import datetime, timezone
 import os
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from core.pipeline import analyze_email, analyze_campaign, save_case, verify_case
+from modules.m13_ioc_export.engine import build_ioc_export, to_json as ioc_to_json, to_csv as ioc_to_csv
+from modules.m14_analyst_feedback.engine import create_feedback_record
+from modules.m16_prevention_audit.lifecycle import create_lifecycle, transition_lifecycle
 
 SEVERITY_TAG = {"CRITICAL": "[CRITICAL]", "HIGH": "[HIGH]", "MEDIUM": "[MEDIUM]", "LOW": "[LOW]", "INFO": "[INFO]"}
 
@@ -149,6 +154,38 @@ def cmd_verify(args):
         sys.exit(2)
 
 
+def _load_json(path):
+    with open(path, "r", encoding="utf-8") as handle:
+        return json.load(handle)
+
+def cmd_export_ioc(args):
+    investigation = _load_json(args.investigation)
+    observed = args.observed_at or datetime.now(timezone.utc).isoformat()
+    export = build_ioc_export(investigation, observed)
+    text = ioc_to_csv(export) if args.format == "csv" else ioc_to_json(export)
+    if args.output:
+        with open(args.output, "w", encoding="utf-8", newline="") as handle: handle.write(text)
+        print(args.output)
+    else: print(text)
+
+def cmd_feedback(args):
+    investigation = _load_json(args.investigation)
+    record = create_feedback_record(args.decision, args.actor, args.actor_role,
+        args.decided_at or datetime.now(timezone.utc).isoformat(), args.reason,
+        investigation, investigation["prevention"],
+        rule_versions=args.rule_versions or ["TRACE-X-M14-1"], details={"sender": args.sender} if args.sender else {})
+    print(json.dumps(record.to_dict(), indent=2))
+
+def cmd_lifecycle(args):
+    investigation = _load_json(args.investigation)
+    now = args.timestamp or datetime.now(timezone.utc).isoformat()
+    lifecycle = create_lifecycle(investigation["prevention"], args.actor, args.actor_role, now, args.reason)
+    if args.transition:
+        lifecycle = transition_lifecycle(lifecycle, args.transition, args.actor, args.actor_role, now,
+                                         args.reason, json.loads(args.details or "{}"))
+    print(json.dumps(lifecycle.to_dict(), indent=2))
+
+
 def main():
     parser = argparse.ArgumentParser(prog="cli.py", description="TRACE-X Email Forensic Investigation CLI")
     sub = parser.add_subparsers(dest="command")
@@ -176,6 +213,35 @@ def main():
     p_verify = sub.add_parser("verify-case", help="Verify a saved case manifest and artifacts")
     p_verify.add_argument("case_dir", help="Path to one saved case directory")
     p_verify.set_defaults(func=cmd_verify)
+
+
+    p_ioc = sub.add_parser("export-ioc", help="Export offline evidence-backed IOCs")
+    p_ioc.add_argument("investigation")
+    p_ioc.add_argument("--format", choices=("json", "csv"), default="json")
+    p_ioc.add_argument("--output")
+    p_ioc.add_argument("--observed-at", dest="observed_at")
+    p_ioc.set_defaults(func=cmd_export_ioc)
+
+    p_feedback = sub.add_parser("feedback", help="Create immutable analyst feedback JSON")
+    p_feedback.add_argument("investigation")
+    p_feedback.add_argument("--decision", required=True)
+    p_feedback.add_argument("--actor", required=True)
+    p_feedback.add_argument("--actor-role", default="ANALYST", dest="actor_role")
+    p_feedback.add_argument("--reason", required=True)
+    p_feedback.add_argument("--decided-at", dest="decided_at")
+    p_feedback.add_argument("--sender")
+    p_feedback.add_argument("--rule-versions", nargs="*", dest="rule_versions")
+    p_feedback.set_defaults(func=cmd_feedback)
+
+    p_lifecycle = sub.add_parser("lifecycle", help="Create/transition advisory audit lifecycle")
+    p_lifecycle.add_argument("investigation")
+    p_lifecycle.add_argument("--transition")
+    p_lifecycle.add_argument("--actor", required=True)
+    p_lifecycle.add_argument("--actor-role", default="ANALYST", dest="actor_role")
+    p_lifecycle.add_argument("--timestamp")
+    p_lifecycle.add_argument("--reason", required=True)
+    p_lifecycle.add_argument("--details", help="JSON object for transition details")
+    p_lifecycle.set_defaults(func=cmd_lifecycle)
 
     args = parser.parse_args()
     if not args.command:

@@ -77,6 +77,12 @@ CORRELATION_GROUPS = {
     "received:earliest_hop_uncertain": "RECEIVED_CHAIN_ANOMALY",
     "received:private_ip_as_origin": "RECEIVED_CHAIN_ANOMALY",
     "received:excessive_hops": "RECEIVED_CHAIN_ANOMALY",
+
+    # Offline infrastructure intelligence family. Country resolution is INFO-only;
+    # future independently supported infrastructure anomalies share this bucket.
+    "geo:private_ip_hop": "INFRASTRUCTURE_ANOMALY",
+    "geo:hosting_asn": "INFRASTRUCTURE_ANOMALY",
+    "trust:first_seen_sensitive_request": "SENDER_TRUST_ANOMALY",
 }
 
 # Diminishing-contribution ratio applied to the 2nd, 3rd, ... item within the
