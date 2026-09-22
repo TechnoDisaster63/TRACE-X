@@ -9,6 +9,7 @@ MODULE_SOURCE_LABEL = {
     "header_forensics": "M02_HEADER_FORENSICS", "authentication": "M03_AUTH_ANALYZER",
     "identity": "M04_IDENTITY_ANALYZER", "received_chain": "M05_RECEIVED_CHAIN",
     "url_analysis": "M06_URL_ANALYZER", "geo_infra": "M17_GEO_INFRA_INTEL",
+    "ml_phishing_signal": "M18_ML_PHISHING_SIGNAL",
     "trust_graph": "M09_TRUST_GRAPH",
 }
 
@@ -93,6 +94,8 @@ def build_evidence_bundle(header_result, auth_result, identity_result, received_
                 "analytic_confidence": raw["confidence"],
                 "confidence_rationale": "Producer confidence retained; source reliability is assessed separately.",
                 "claim_key": _claim_key(raw), "claim_polarity": _polarity(raw["finding"] + " " + raw["evidence"])}
+        if "executable" in raw:
+            item["executable"] = bool(raw["executable"])
         if auth_prov:
             item["authentication_provenance"] = auth_prov
             item["automated_prevention_eligible"] = auth_prov["trusted_source"]

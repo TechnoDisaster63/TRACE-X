@@ -1,0 +1,2 @@
+# Optional M18 offline inference runtime. Pin matches the model's training runtime.
+scikit-learn==1.6.1
