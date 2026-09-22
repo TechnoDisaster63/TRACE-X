@@ -32,9 +32,32 @@ The visual-first console shows:
 
 The ZIP is assembled locally from exactly the generated investigation JSON, human-readable TXT report and integrity manifest. TRACE-X validates the case ID, confines lookup to the local output directory, re-verifies manifest hashes before download and blocks invalid or incomplete packages.
 
-## One-click start
+## Fresh local run on Windows
 
-`START-TRACE-X.bat` is the only Windows launcher. On first run it creates `.venv` and installs dependencies; that bootstrap can require internet. Analysis itself is offline.
+Use Python 3.11 from a PowerShell window. The second requirements file is needed for the bundled M18 model and the complete 330-test suite.
+
+```powershell
+git clone https://github.com/TechnoDisaster63/TRACE-X.git
+cd TRACE-X
+py -3.11 --version
+py -3.11 -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
+python -m pip install -r requirements-ml.txt
+python -m pip check
+python -m pytest -q
+python cli.py analyze test_data/phishing/phishing_paypal_lookalike.eml
+python cli.py analyze test_data/legitimate/legit_newsletter.eml
+python cli.py campaign test_data/campaign
+python demo.py
+```
+
+Expected checks: `330 passed`, phishing `77/HIGH`, legitimate `0/LOW`, one three-message campaign, then the local console at `http://127.0.0.1:8765/`. Keep the PowerShell window open while using the console; press `Ctrl+C` to stop it. If PowerShell blocks activation, run `Set-ExecutionPolicy -Scope Process Bypass` once in that window, then activate again.
+
+## One-click Windows launcher
+
+`START-TRACE-X.bat` creates `.venv`, installs both requirement sets and opens the local console. That first bootstrap can require internet; analysis itself is offline.
 
 ```text
 START-TRACE-X.bat
@@ -43,14 +66,7 @@ START-TRACE-X.bat campaign test_data\campaign
 START-TRACE-X.bat test
 ```
 
-The Python entry points also run on Linux/macOS:
-
-```bash
-python demo.py
-python cli.py analyze test_data/phishing/phishing_paypal_lookalike.eml
-python cli.py campaign test_data/campaign
-python -m pytest -q
-```
+The same entry points run on Linux/macOS after installing both `requirements.txt` and `requirements-ml.txt` in a virtual environment.
 
 ## Demonstrated behavior
 
