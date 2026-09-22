@@ -6,6 +6,7 @@ import sys
 import tempfile
 import threading
 import unittest
+import zipfile
 from http.client import HTTPConnection
 from pathlib import Path
 
@@ -63,6 +64,24 @@ class DemoInterfaceTests(unittest.TestCase):
         self.assertEqual(data["boundaries"]["authentication"], "REPORTED_HEADER_ANALYSIS; NOT INDEPENDENTLY VERIFIED")
         self.assertTrue(data["evidence"])
         self.assertTrue(all(x["id"].startswith("EV-") for x in data["evidence"]))
+        self.assertEqual(data["case_package"]["export_format"], "ZIP")
+        response, archive = self.request("GET", data["case_package"]["export_url"])
+        self.assertEqual(response.status, 200)
+        self.assertEqual(response.getheader("Content-Type"), "application/zip")
+        self.assertEqual(response.getheader("Content-Disposition"),
+                         f'attachment; filename="{data["investigation_id"]}-case-package.zip"')
+        with zipfile.ZipFile(io.BytesIO(archive)) as bundle:
+            self.assertEqual(set(bundle.namelist()), {
+                f'{data["investigation_id"]}.json', f'{data["investigation_id"]}.txt',
+                f'{data["investigation_id"]}.manifest.json',
+            })
+            exported = json.loads(bundle.read(f'{data["investigation_id"]}.json'))
+            self.assertEqual(exported["investigation_id"], data["investigation_id"])
+
+    def test_export_rejects_unknown_or_unsafe_case_ids(self):
+        for path in ("/api/export/TX-999999", "/api/export/../README.md", "/api/export/not-a-case"):
+            response, _ = self.request("GET", path)
+            self.assertEqual(response.status, 404)
 
     def test_rejects_missing_choice(self):
         boundary = "----TRACE-X-EMPTY"
