@@ -145,3 +145,31 @@ def test_no_campaign_claimed_without_any_shared_indicator():
     investigations = [analyze_email(f) for f in files]
     result = correlate_campaign(investigations)
     assert result["campaigns"] == []
+
+
+def test_transitive_campaign_evidence_names_only_actual_supporters():
+    """A-B and B-C links may form one campaign without A-C sharing a value.
+    Evidence must not claim each value appears across the whole component."""
+    def inv(inv_id, sender, reply_to="", display="", hosts=()):
+        return {
+            "investigation_id": inv_id,
+            "file": f"{inv_id}.eml",
+            "identity": {"from_domain": sender, "reply_to_domain": reply_to, "display_name": display},
+            "url_analysis": {"urls": [{"host": host} for host in hosts]},
+            "email_summary": {"subject": inv_id},
+        }
+
+    # A-B share sender; B-C share URL. The cluster is valid and transitive,
+    # but neither value is present in all three messages.
+    result = correlate_campaign([
+        inv("TX-A", "shared.example"),
+        inv("TX-B", "shared.example", hosts=("shared.test",)),
+        inv("TX-C", "other.example", hosts=("shared.test",)),
+    ])
+    campaign = result["campaigns"][0]
+    assert campaign["related_email_count"] == 3
+    assert campaign["indicator_support"]["shared_sender_domain"]["shared.example"] == ["TX-A", "TX-B"]
+    assert campaign["indicator_support"]["shared_url_host"]["shared.test"] == ["TX-B", "TX-C"]
+    assert any("observed in 2 email(s): TX-A, TX-B" in line for line in campaign["evidence"])
+    assert any("observed in 2 email(s): TX-B, TX-C" in line for line in campaign["evidence"])
+    assert all("observed across 3" not in line for line in campaign["evidence"])

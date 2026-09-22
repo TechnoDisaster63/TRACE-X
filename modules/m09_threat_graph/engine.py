@@ -562,26 +562,34 @@ def correlate_campaign(investigations: List[dict]) -> dict:
         members_sorted = sorted(members)
         member_signal_by_id = {s["investigation_id"]: s for s in signals}
 
-        # Aggregate: for each indicator type, collect the concrete shared
-        # values actually observed across ANY pair within this cluster.
+        # Aggregate concrete values and the exact members that support each
+        # value. Connected-component grouping may be transitive (A shares one
+        # indicator with B; B shares a different one with C), so it would be
+        # false to claim every indicator was observed across every member.
         aggregated: Dict[str, Set[str]] = {}
+        support: Dict[str, Dict[str, Set[str]]] = {}
         evidence: List[str] = []
         for k in range(len(members_sorted)):
             for l in range(k + 1, len(members_sorted)):
-                key = frozenset((members_sorted[k], members_sorted[l]))
-                shared = pair_shared.get(key)
+                left, right = members_sorted[k], members_sorted[l]
+                shared = pair_shared.get(frozenset((left, right)))
                 if not shared:
                     continue
                 for indicator_type, value in shared.items():
                     values = value if isinstance(value, list) else [value]
                     aggregated.setdefault(indicator_type, set()).update(values)
+                    by_value = support.setdefault(indicator_type, {})
+                    for concrete in values:
+                        by_value.setdefault(concrete, set()).update((left, right))
 
         for indicator_type, values in sorted(aggregated.items()):
             label = indicator_type.replace("_", " ")
-            evidence.append(
-                f"{label}: {', '.join(sorted(values))} "
-                f"(observed across {len(members_sorted)} email(s) in this cluster)"
-            )
+            for value in sorted(values):
+                supported_by = sorted(support[indicator_type][value])
+                evidence.append(
+                    f"{label}: {value} (observed in {len(supported_by)} email(s): "
+                    f"{', '.join(supported_by)})"
+                )
 
         correlation_signals = sorted(aggregated.keys())
         correlation_score = min(
@@ -607,6 +615,10 @@ def correlate_campaign(investigations: List[dict]) -> dict:
             ],
             "related_email_count": len(members_sorted),
             "shared_indicators": {k: sorted(v) for k, v in aggregated.items()},
+            "indicator_support": {
+                indicator_type: {value: sorted(member_ids) for value, member_ids in sorted(by_value.items())}
+                for indicator_type, by_value in sorted(support.items())
+            },
             "correlation_signals": correlation_signals,
             "correlation_score": correlation_score,
             "confidence": confidence,
