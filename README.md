@@ -281,3 +281,22 @@ The bundled scenario guide is in [`demo_scenarios/README.md`](demo_scenarios/REA
 ```bash
 python cli.py campaign test_data/campaign
 ```
+
+## M17 offline geo/infrastructure intelligence
+
+TRACE-X now resolves public M05 hop IPs against the bundled **DB-IP Lite
+Country 2026-09** MMDB. Analysis makes no network call. Results describe
+probable mail-infrastructure country, not a person's location or actor
+attribution. Missing, corrupt, private/reserved, and unknown-IP cases report
+unavailable/internal explicitly and never guess. This DB edition contains no
+ASN, owner, WHOIS, or reputation data, so those fields remain unavailable.
+See `modules/m17_geo_infra_intel/data/README.md` for source, version, license,
+and SHA-256.
+
+M11 also includes a small versioned, offline TF-IDF/cosine BEC phrase
+similarity layer. It cites the exact reference phrase and is explicitly not a
+trained classifier. M09 can build sender trust relationships only from
+explicit analyst feedback; absence of history is unknown, not malicious.
+
+CLI additions: `export-ioc`, `feedback`, and `lifecycle`. All remain offline,
+advisory-only, and non-executable.

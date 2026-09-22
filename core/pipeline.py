@@ -19,11 +19,13 @@ from modules.m03_auth_analyzer.analyzer import analyze_authentication
 from modules.m04_identity_analyzer.analyzer import analyze_identity
 from modules.m05_received_chain.analyzer import analyze_received_chain
 from modules.m06_url_analyzer.analyzer import analyze_urls
+from modules.m17_geo_infra_intel.engine import analyze_geo_infrastructure
 from modules.m07_evidence_engine.engine import build_evidence_bundle
 from modules.m08_risk_engine.engine import compute_risk
-from modules.m09_threat_graph.engine import build_threat_graph, correlate_campaign
+from modules.m09_threat_graph.engine import build_threat_graph, correlate_campaign, build_sender_trust_graph
 from modules.m10_report_generator.engine import generate_report, to_text
 from modules.m11_prevention_recommendation.engine import generate_prevention_recommendation
+from modules.m11_prevention_recommendation.bec import similarity_matches
 
 logger = get_logger("core.pipeline")
 
@@ -33,6 +35,7 @@ def analyze_email(
     trusted_domains: Optional[List[str]] = None,
     trusted_authserv_ids: Optional[List[str]] = None,
     policies: Optional[List[dict]] = None,
+    feedback_records: Optional[List[dict]] = None,
 ) -> dict:
     """
     Run the full M01-M12 pipeline against a single .eml file.
@@ -52,9 +55,16 @@ def analyze_email(
     identity_result = analyze_identity(parsed, trusted_domains=trusted_domains)
     received_result = analyze_received_chain(parsed)
     url_result = analyze_urls(parsed)
+    geo_result = analyze_geo_infrastructure(received_result)
+    body_text = "\n".join([parsed.subject or "", parsed.body_plain or "", parsed.body_html_text or ""])
+    sensitive_request = bool(similarity_matches(body_text))
+    trust_graph_result = build_sender_trust_graph(
+        feedback_records or [], parsed.from_, content_signal_present=sensitive_request
+    )
 
     evidence_bundle = build_evidence_bundle(
-        header_result, auth_result, identity_result, received_result, url_result
+        header_result, auth_result, identity_result, received_result, url_result,
+        geo_result=geo_result, extra_results={"trust_graph": trust_graph_result}
     )
     risk_result = compute_risk(evidence_bundle)
     threat_graph = build_threat_graph(evidence_bundle, risk_result, email_id=parsed.from_)
@@ -68,6 +78,7 @@ def analyze_email(
         file_name=parsed.source_filename or os.path.basename(str(path)),
         identity_result=identity_result,
         received_result=received_result,
+        geo_result=geo_result,
         auth_result=auth_result,
         prevention=prevention,
     )
@@ -90,6 +101,8 @@ def analyze_email(
         "authentication": auth_result,
         "identity": identity_result,
         "received_chain": received_result,
+        "geo_infrastructure": geo_result,
+        "sender_trust_graph": trust_graph_result,
         "url_analysis": url_result,
         "evidence": evidence_bundle,
         "risk": risk_result,

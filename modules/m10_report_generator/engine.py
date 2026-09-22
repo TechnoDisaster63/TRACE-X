@@ -113,6 +113,7 @@ def generate_report(
     file_name: str = None,
     identity_result: dict = None,
     received_result: dict = None,
+    geo_result: dict = None,
     auth_result: dict = None,
     campaign: dict = None,
     prevention: dict = None,
@@ -227,6 +228,14 @@ def generate_report(
         "findings": (received_result or {}).get("findings", []),
     }
 
+    probable_sender_infrastructure = {
+        "honesty_note": "Locations describe probable mail infrastructure, not a person or threat actor.",
+        "database": (geo_result or {}).get("database", {}),
+        "hops": (geo_result or {}).get("hop_intelligence", []),
+        "findings": (geo_result or {}).get("findings", []),
+        "limitations": (geo_result or {}).get("limitations", ["M17 result not supplied."]),
+    }
+
     indicators = {
         "node_count": threat_graph.get("node_count", 0),
         "edge_count": threat_graph.get("edge_count", 0),
@@ -306,6 +315,7 @@ def generate_report(
         "authentication": authentication,
         "identity_analysis": identity_analysis,
         "received_chain": received_chain,
+        "probable_sender_infrastructure": probable_sender_infrastructure,
         "indicators": indicators,
         "campaign_relationships": campaign_relationships,
         "evidence_reasoning": {
@@ -433,6 +443,15 @@ def to_text(report: dict) -> str:
             f"  Hop {hop.get('hop_number', '?')}: host={hop.get('hostname')} "
             f"ip={hop.get('ip')} [{hop.get('classification', '?')}]"
         )
+    lines.append("")
+
+    lines += [thin, "PROBABLE SENDER INFRASTRUCTURE", thin]
+    infra = report.get("probable_sender_infrastructure", {})
+    lines.append(infra.get("honesty_note", ""))
+    db = infra.get("database", {})
+    lines.append(f"Database : {db.get('database', 'unavailable')}")
+    for hop in infra.get("hops", []):
+        lines.append(f"  Hop {hop.get('hop_number')}: ip={hop.get('ip')} country={hop.get('country_name') or 'unavailable'} status={hop.get('status')}")
     lines.append("")
 
     lines += [thin, "CAMPAIGN RELATIONSHIPS", thin]

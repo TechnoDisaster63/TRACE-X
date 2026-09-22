@@ -8,7 +8,8 @@ from core.utils import canonical_json_bytes, severity_rank, sha256_bytes, stable
 MODULE_SOURCE_LABEL = {
     "header_forensics": "M02_HEADER_FORENSICS", "authentication": "M03_AUTH_ANALYZER",
     "identity": "M04_IDENTITY_ANALYZER", "received_chain": "M05_RECEIVED_CHAIN",
-    "url_analysis": "M06_URL_ANALYZER",
+    "url_analysis": "M06_URL_ANALYZER", "geo_infra": "M17_GEO_INFRA_INTEL",
+    "trust_graph": "M09_TRUST_GRAPH",
 }
 
 def reset_counter():
@@ -41,10 +42,14 @@ def _locator(raw, module_key, occurrence):
             "path": path or source, "occurrence": int(raw.get("source_occurrence", 0)),
             "byte_start": None, "byte_end": None}
 
-def build_evidence_bundle(header_result, auth_result, identity_result, received_result, url_result):
+def build_evidence_bundle(header_result, auth_result, identity_result, received_result, url_result, geo_result=None, extra_results=None):
     module_results = {"header_forensics": header_result, "authentication": auth_result,
                       "identity": identity_result, "received_chain": received_result,
                       "url_analysis": url_result}
+    if geo_result is not None:
+        module_results["geo_infra"] = geo_result
+    for key, value in (extra_results or {}).items():
+        module_results[key] = value
     grouped = {}
     for module_key, result in module_results.items():
         for occurrence, raw in enumerate(result.get("findings", [])):
