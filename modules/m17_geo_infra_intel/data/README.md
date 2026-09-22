@@ -13,3 +13,7 @@ TRACE-X uses this file locally. No analysis-time network call occurs. Country is
 reported as probable infrastructure location, never a person's location or
 threat-actor attribution. This edition does not contain ASN, ownership, WHOIS,
 or reputation data, so TRACE-X reports those capabilities as unavailable.
+
+## Current product surface
+
+The masterclass console renders this data as a compact mail-hop path. Detailed hop evidence remains available on demand. Geo output is informational and never changes the deterministic risk score.

@@ -1,16 +1,18 @@
-# SIH 2026 Demonstration Flow
+# TRACE-X judge demonstration
 
-Project: TRACE-X, Zyronith, SIH26106.
+## Three-minute path
 
-1. State the boundary: offline prototype, reported-header authentication, no live blocking.
-2. Double-click `START-TRACE-X.bat` (or run `python demo.py`): the offline console opens. Point out the boundary chips and the bundled scenario pack.
-3. Run the legitimate scenario in the console: show LOW/CLEAN, the M17 geo table (probable infrastructure countries of the hops), and the M18 advisory ML panel with a low probability and its driving tokens.
-4. Run the phishing scenario: show 77/HIGH/PHISHING, evidence IDs, the M18 probability and exact contributing tokens, HOLD_FOR_REVIEW recommendation, executable=false, auth provenance limits. Say clearly: the ML signal is advisory INFO evidence; the score comes from deterministic rules.
-5. Run `python cli.py analyze test_data/legitimate/legit_newsletter.eml`: show LOW/CLEAN and request-additional-analysis due to no risk evidence.
-6. Run the BEC fixture: show 52/MEDIUM/BEC, payment/urgency plus identity/auth corroboration, analyst review, out-of-band and financial safeguards, counterfactuals.
-7. Run the malformed fixture: show parse warnings and explain anomalies are not proof; M17/M18 report explicit unavailable states rather than guessing when data is missing.
-8. Run `python cli.py campaign test_data/campaign`: show three investigations and one batch campaign; say batch-only, not continuous telemetry.
-9. Show deterministic IOC JSON/CSV with source evidence, expiry, heuristic status, enforcement=false.
-10. Show feedback and lifecycle demo artifacts: immutable linkage, review-only summaries, no action execution.
+1. Open the loopback-only evidence workbench with `START-TRACE-X.bat` or `python demo.py`.
+2. Point to the always-visible boundaries: URLs never visited, attachments never executed, reported-header auth only, advisory/no automation, batch-only campaigns, offline ML.
+3. Run the legitimate newsletter. Show the 0/LOW risk dial, 7.3% advisory M18 ring, hop chain and clean severity rail.
+4. Run the PayPal look-alike. Show the 77/HIGH deterministic verdict, 99.7% advisory M18 ring with driving tokens, and M17 mail-hop path.
+5. Open evidence/provenance on demand. Explain that the calm default view is a summary; every finding, origin and limitation remains inspectable.
+6. Show `HOLD FOR REVIEW`, human review and `executable=false`.
+7. Click **EXPORT VERIFIED CASE - ZIP**. Explain that TRACE-X re-verifies and downloads only the generated JSON, TXT and manifest.
+8. If time permits, run the BEC and campaign scenarios. State that correlation is supplied-batch-only.
 
-Say "advisory ML signal with token explanations and test-set-only metrics". Never say verified SPF/DKIM/DMARC, real-time protection, ML-powered verdicts, production-ready, zero false positives, live integration, or legal proof.
+## Exact language
+
+Say: "reported-header authentication", "probable infrastructure country", "advisory ML signal", "test-set-only metrics", "deterministic score" and "manifest detects change".
+
+Do not say: verified SPF/DKIM/DMARC, person's location, real-time protection, ML verdict, production-ready, autonomous response, legal chain of custody or zero false positives.
