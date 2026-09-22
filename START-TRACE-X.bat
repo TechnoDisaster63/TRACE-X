@@ -1,16 +1,16 @@
 @echo off
 setlocal
 cd /d "%~dp0"
-title TRACE-X Test Suite
+title TRACE-X
 
 echo ========================================
-echo   TRACE-X - Running All Tests
+echo   TRACE-X - Email Threat Analysis
 echo ========================================
 echo.
 
 if not exist ".venv\Scripts\activate.bat" (
     echo [ERROR] TRACE-X is not set up in this folder.
-    echo Run setup.bat first, then try again.
+    echo Run setup.bat first, then double-click this file again.
     echo.
     pause
     exit /b 1
@@ -24,17 +24,15 @@ if errorlevel 1 (
     exit /b 1
 )
 
-echo This can take a few minutes. Please wait...
+echo Starting TRACE-X. Your browser will open automatically.
+echo In the page: choose a .eml file, then click RUN ANALYSIS.
+echo Keep this window open while using TRACE-X.
+echo Press Ctrl+C here when you want to stop.
 echo.
-python -m pytest tests\ -v
-set "TRACE_X_EXIT=%ERRORLEVEL%"
+python demo.py
 
-echo.
-if not "%TRACE_X_EXIT%"=="0" (
-    echo [ERROR] One or more tests failed.
-) else (
-    echo [DONE] All TRACE-X tests passed.
+if errorlevel 1 (
+    echo.
+    echo [ERROR] TRACE-X stopped with an error.
+    pause
 )
-echo.
-pause
-exit /b %TRACE_X_EXIT%
