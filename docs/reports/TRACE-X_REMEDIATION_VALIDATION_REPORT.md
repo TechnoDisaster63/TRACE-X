@@ -1,3 +1,5 @@
+> **Superseded snapshot (dated 2026-09-21).** The "no ML" and 300-test statements below describe that date's state. Current `main` adds M17 geo intelligence and the M18 advisory-only ML signal (328 tests, validated 2026-09-22); autonomous enforcement, live monitoring, compliance, and legal-forensics readiness remain unclaimed. See `docs/project/IMPLEMENTATION_STATUS.md`.
+
 # TRACE-X Remediation and Presentation Consistency Report
 
 **Validation date:** 2026-09-21  

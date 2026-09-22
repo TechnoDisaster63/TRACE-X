@@ -1,9 +1,10 @@
 """
 core/pipeline.py
 
-Wires M01 -> M02 -> M03 -> M04 -> M05 -> M06 -> M07 -> M08 -> M09 -> M10
-into a single analyze_email() call. This is the integration layer that runs
-the full prototype end-to-end. No frontend, no API, no DB.
+Wires M01 -> M02 -> M03 -> M04 -> M05 -> M06 -> M17 -> M18 -> M07 -> M08 ->
+M09 -> M10 -> M11 into a single analyze_email() call (M12/M13/M14/M16 are
+invoked through the CLI around this core flow). This is the integration
+layer that runs the full prototype end-to-end. No frontend, no API, no DB.
 """
 import json
 import os
@@ -39,12 +40,12 @@ def analyze_email(
     feedback_records: Optional[List[dict]] = None,
 ) -> dict:
     """
-    Run the full M01-M12 pipeline against a single .eml file.
+    Run the full M01-M11 + M17 + M18 pipeline against a single .eml file.
     Returns a single JSON-serializable investigation result.
 
     A single, unique investigation_id is generated once here and
-    propagated unchanged through every module (M01-M10) and into the
-    saved JSON/report/text output for this investigation.
+    propagated unchanged through every module (M01-M11, M17, M18) and into
+    the saved JSON/report/text output for this investigation.
     """
     start = time.time()
     investigation_id = next_investigation_id(state_dir=OUTPUT_DIR)
@@ -217,7 +218,7 @@ def _build_manifest(result: dict, artifact_bytes: Dict[str, bytes], config_snaps
             "input": {"file": result.get("file"), "sha256": result.get("file_sha256"),
                       "acquisition_mode": "ANALYST_SUPPLIED_FILE"},
             "artifacts": artifacts,
-            "tool": {"name": "TRACE-X", "pipeline_version": "M01-M14+M16",
+            "tool": {"name": "TRACE-X", "pipeline_version": "M01-M14+M16+M17+M18",
                      "commit": commit, "offline": True, "deterministic_analysis": True},
             "configuration": config_snapshot or result.get("analysis_configuration", {}),
             "environment": {"python": platform.python_version(), "platform": platform.platform()},

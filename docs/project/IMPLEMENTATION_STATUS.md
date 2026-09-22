@@ -1,6 +1,6 @@
 # TRACE-X implementation status
 
-Current validation date: 2026-09-21
+Current validation date: 2026-09-22
 
 ## What runs now
 
@@ -19,16 +19,30 @@ Current validation date: 2026-09-21
   summaries. It does not tune rules or train a model.
 - M16 models local lifecycle and hash-linked audit records. Execution/outcome
   states record supplied facts; they do not perform an external action.
+- M17 resolves public Received-hop IPs to probable mail-infrastructure country
+  against the bundled offline DB-IP Lite Country 2026-09 database. Private,
+  reserved, invalid, missing, and unknown IPs are reported explicitly and
+  never guessed. This edition has no ASN, owner, WHOIS, or reputation fields.
+- M18 adds one optional, offline, advisory ML phishing-language signal: a
+  calibrated probability with per-email token explanations. It is INFO-level
+  evidence only, is never executable, and never changes the deterministic
+  risk score. Without the optional scikit-learn runtime or the bundled model
+  it reports itself unavailable rather than guessing.
 
-That is 15 implemented modules: M01-M14 plus M16. M15 is absent because live
-adapter execution is not implemented.
+That is 17 implemented modules: M01-M14 plus M16, M17, and M18. M15 is absent
+because live adapter execution is not implemented.
 
 ## Safety and evidence boundaries
 
 - SPF, DKIM, and DMARC values come from reported `Authentication-Results`
   headers. TRACE-X does not independently verify them.
 - URLs and attachments are never opened or executed.
-- Risk and confidence are deterministic labels, not probabilities.
+- Risk and confidence are deterministic labels, not probabilities. The M18
+  probability is a separate advisory signal, not the risk score.
+- M17 countries describe probable mail infrastructure, never a person's
+  location or actor attribution.
+- M18 held-out metrics are test-set-only on historical 2005-2007-era public
+  corpora. TRACE-X claims no field accuracy.
 - Every recommendation is advisory and `executable=false`. Stronger
   recommendations require human approval.
 - There is no mailbox, gateway, SIEM, SOAR, firewall, or financial-system
@@ -52,7 +66,7 @@ adapter execution is not implemented.
 - automatic block, quarantine, delete, delivery, payment, or other external act
 - frontend, network API, database, secure multi-user case store, or approval UI
 - persistent campaign history or live monitoring
-- adaptive machine learning or automatic threshold/rule changes
+- adaptive/self-tuning machine learning or automatic threshold/rule changes
 - independent SPF, DKIM, or DMARC verification
 - production, compliance, or legal chain-of-custody claims
 
@@ -66,6 +80,7 @@ adapter execution is not implemented.
 
 ## Validation record
 
-A fresh run from current `main` on 2026-09-21 collected 300 tests and passed all
-300 with no failures. Historical 159, 164, 294, and 297-test runs remain in the
-repository as dated audit milestones, not current test counts.
+A fresh run from current `main` on 2026-09-22 collected 328 tests and passed
+all 328 with no failures, with the optional M18 runtime installed. Historical
+159, 164, 294, 297, and 300-test runs remain in the repository as dated audit
+milestones, not current test counts.
