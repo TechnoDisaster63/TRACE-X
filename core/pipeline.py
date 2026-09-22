@@ -20,6 +20,7 @@ from modules.m04_identity_analyzer.analyzer import analyze_identity
 from modules.m05_received_chain.analyzer import analyze_received_chain
 from modules.m06_url_analyzer.analyzer import analyze_urls
 from modules.m17_geo_infra_intel.engine import analyze_geo_infrastructure
+from modules.m18_ml_phishing_signal.engine import analyze_ml_phishing_signal
 from modules.m07_evidence_engine.engine import build_evidence_bundle
 from modules.m08_risk_engine.engine import compute_risk
 from modules.m09_threat_graph.engine import build_threat_graph, correlate_campaign, build_sender_trust_graph
@@ -57,6 +58,7 @@ def analyze_email(
     url_result = analyze_urls(parsed)
     geo_result = analyze_geo_infrastructure(received_result)
     body_text = "\n".join([parsed.subject or "", parsed.body_plain or "", parsed.body_html_text or ""])
+    ml_result = analyze_ml_phishing_signal(body_text)
     sensitive_request = bool(similarity_matches(body_text))
     trust_graph_result = build_sender_trust_graph(
         feedback_records or [], parsed.from_, content_signal_present=sensitive_request
@@ -64,7 +66,7 @@ def analyze_email(
 
     evidence_bundle = build_evidence_bundle(
         header_result, auth_result, identity_result, received_result, url_result,
-        geo_result=geo_result, extra_results={"trust_graph": trust_graph_result}
+        geo_result=geo_result, extra_results={"trust_graph": trust_graph_result, "ml_phishing_signal": ml_result}
     )
     risk_result = compute_risk(evidence_bundle)
     threat_graph = build_threat_graph(evidence_bundle, risk_result, email_id=parsed.from_)
@@ -102,6 +104,7 @@ def analyze_email(
         "identity": identity_result,
         "received_chain": received_result,
         "geo_infrastructure": geo_result,
+        "ml_phishing_signal": ml_result,
         "sender_trust_graph": trust_graph_result,
         "url_analysis": url_result,
         "evidence": evidence_bundle,

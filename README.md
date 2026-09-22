@@ -145,6 +145,7 @@ trace-x/
 │   ├── m04_identity_analyzer/
 │   ├── m05_received_chain/
 │   ├── m06_url_analyzer/
+│   ├── m18_ml_phishing_signal/ # Optional offline advisory ML probability + token contributions
 │   ├── m07_evidence_engine/
 │   ├── m08_risk_engine/
 │   ├── m09_threat_graph/        (threat graph + campaign correlation)
