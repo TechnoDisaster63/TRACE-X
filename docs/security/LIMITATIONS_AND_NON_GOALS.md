@@ -1,34 +1,19 @@
 # Limitations and non-goals
 
-## Limits that affect every result
+## Result boundaries
 
-- **Reported authentication only.** SPF, DKIM, and DMARC values are parsed from
-  message headers. TRACE-X does not query DNS or independently verify them.
-- **Rule-based labels.** Risk and confidence are deterministic labels, not
-  calibrated probabilities or proof of malicious intent.
-- **Advisory ML signal only.** The M18 probability is INFO-level evidence with
-  per-email token explanations. It never changes the deterministic risk score,
-  is never executable, and its held-out metrics are test-set-only on
-  historical 2005-2007-era public corpora — not a field-accuracy claim.
-- **Probable infrastructure country only.** M17 geo results come from a bundled
-  offline DB-IP Lite Country file. They describe probable mail-infrastructure
-  country, never a person's location or actor attribution, and this edition
-  has no ASN, owner, WHOIS, or reputation data.
-- **Supplied batch only.** Campaign correlation sees only the files supplied to
-  the current process. It has no persistent history or continuous telemetry.
-- **Local plaintext output.** Reports can contain sensitive message data. The
-  prototype has no access control, encryption, retention policy, or case store.
-- **Bounded heuristics.** BEC, identity, brand, and URL rules can miss threats or
-  flag legitimate messages. There is no external intelligence or mailbox
-  history.
-- **No service layer.** There is no frontend, network API, database, secure
-  multi-user administration, or live enterprise integration.
+- SPF/DKIM/DMARC are reported-header observations; TRACE-X does not independently verify DNS authentication.
+- Risk is deterministic and rule-based. M18's probability is separate INFO-level advisory evidence.
+- M18 metrics come from a historical public-corpus test split and are not field accuracy.
+- M17 gives probable mail-infrastructure country only, never personal location or actor attribution; no ASN/owner/WHOIS/reputation is present.
+- Campaign correlation sees only the supplied batch.
+- Brand, BEC, identity and URL checks are bounded heuristics.
+- Local JSON/TXT/ZIP outputs can contain sensitive message data. No authenticated case service, encryption-at-rest policy or retention service exists.
 
-## Not supported
+## Export boundary
 
-TRACE-X does not perform autonomous block, quarantine, delete, delivery,
-payment, URL visit, attachment execution, or any other external action. It has
-no live mailbox, gateway, SIEM, SOAR, firewall, STIX/TAXII, monitoring,
-adaptive/self-tuning ML, ML-driven enforcement, or blockchain capability. It
-does not claim production readiness, compliance certification, legal chain of
-custody, 100% detection, or zero false positives.
+The console ZIP contains exactly the generated JSON report, TXT report and integrity manifest. Integrity is re-verified before download. The manifest detects local changes; neither it nor the ZIP is a signature or legal chain-of-custody attestation.
+
+## Non-goals in this prototype
+
+No URL visit, attachment execution, live mailbox, gateway, SIEM/SOAR, firewall, STIX/TAXII, autonomous block/quarantine/delete/delivery/payment, adaptive learning, ML enforcement, production-readiness, certification, perfect detection or legal proof.

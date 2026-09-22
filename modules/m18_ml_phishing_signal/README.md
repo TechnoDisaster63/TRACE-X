@@ -28,3 +28,9 @@ If scikit-learn is absent, the pickle is missing or unreadable, or its expected 
 Pickle artifacts must be treated as executable Python serialization and replaced only from a trusted source. The bundled artifact is the user-supplied trained model recorded for this module.
 
 Bundled artifact integrity: `data/tracex_ml_v2.pkl` SHA-256 `307c0674d6a50e81b3d323d66c34cb2d6e10f3e6338005a0f381bc94970999bd`. Verify with `sha256sum` after checkout; replace only from a trusted source.
+
+## Current product surface
+
+The masterclass console renders the signal as a probability ring with the exact positive token contributions beside it. Model meaning and limitations remain available on demand. This is a visual explanation of the same advisory output; no score or behavior is changed.
+
+Current validation: 330 passing tests, including graceful unavailable behavior and the invariant that M18 never changes the deterministic risk score.
