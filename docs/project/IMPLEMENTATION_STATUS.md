@@ -1,8 +1,8 @@
 # TRACE-X implementation status
 
-**Validated:** 2026-09-22
-**Current suite:** 330 passed, 0 failed
-**Implemented:** 17 modules - M01-M14 + M16 + M17 + M18
+**Validated:** 2026-09-23 (main d6c7a68)
+**Current suite:** 335 passed, 0 failed
+**Implemented:** 20 modules - M01-M14 + M16-M21 (M19 audit chain, M20 local SQLite case store, M21 folder ingest)
 
 ## Working now
 
