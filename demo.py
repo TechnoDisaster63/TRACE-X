@@ -22,6 +22,8 @@ from pathlib import Path
 from urllib.parse import parse_qs, urlparse
 
 from core.pipeline import analyze_email, save_case, verify_case
+from modules.m19_audit_chain.engine import append_event
+from modules.m20_case_store.store import CaseStore
 
 ROOT = Path(__file__).resolve().parent
 SCENARIO_ROOT = ROOT / "demo_scenarios"
@@ -190,6 +192,8 @@ class DemoHandler(BaseHTTPRequestHandler):
             try:
                 result = analyze_email(input_path, trusted_domains=trusted)
                 package = save_case(result)
+                CaseStore(os.environ.get("TRACE_X_CASE_DB", str(ROOT / "output" / "cases.sqlite3"))).add(result)
+                append_event(os.environ.get("TRACE_X_AUDIT_LOG", str(ROOT / "output" / "audit-chain.jsonl")), actor=os.environ.get("TRACE_X_ACTOR", "LOCAL_CONSOLE"), action="ANALYZE_EMAIL", investigation_id=result["investigation_id"], input_sha256=result["file_sha256"], details={"source": "LOCAL_CONSOLE", "case_dir": package["case_dir"]})
                 verification = verify_case(package["case_dir"])
                 self._json(200, _view(result, package, verification))
             finally:
