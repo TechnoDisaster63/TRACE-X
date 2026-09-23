@@ -1,0 +1,38 @@
+============================================================
+TRACE-X EMAIL INVESTIGATION
+============================================================
+
+Investigation ID:
+TX-000751
+
+File:
+forged-received.eml
+
+SHA-256:
+4a87346e394264c422a5326ec35043a35d489decd090a7cabd7ddeb5bba54b01
+
+RISK:
+LOW  (score: 9/100)
+
+THREAT CLASSIFICATION:
+UNKNOWN  (confidence: LOW)
+
+TOP FINDINGS:
+  [MEDIUM] No Authentication-Results header found
+  [INFO] Earliest observable infrastructure identified in mail path
+  [INFO] Mail hop uses an internal or non-routable IP address
+  [INFO] Advisory ML phishing-language probability
+  [INFO] No URLs found in email body
+  [INFO] Mail hop uses an internal or non-routable IP address
+
+EVIDENCE COUNT:
+6
+
+CONFIDENCE:
+LOW
+
+REPORT DATA SAVED:
+/workspaces/TRACE-X/output/TX-000751/TX-000751.json
+TEXT REPORT SAVED:
+/workspaces/TRACE-X/output/TX-000751/TX-000751.txt
+============================================================

@@ -1,0 +1,42 @@
+============================================================
+TRACE-X EMAIL INVESTIGATION
+============================================================
+
+Investigation ID:
+TX-000750
+
+File:
+malformed.eml
+
+SHA-256:
+571c51f6dd4e5b576d90faf6aff2714cbeeeb852537ea96666a68eadf16d785a
+
+RISK:
+MEDIUM  (score: 30/100)
+
+THREAT CLASSIFICATION:
+INFRASTRUCTURE_ABUSE  (confidence: MEDIUM)
+
+TOP FINDINGS:
+  [MEDIUM] Missing Message-ID header
+  [MEDIUM] No Received headers present (unusual for delivered mail)
+  [MEDIUM] No Authentication-Results header found
+  [MEDIUM] No Received headers available to reconstruct mail path
+  [LOW] Missing Date header
+  [INFO] No URLs found in email body
+
+EVIDENCE COUNT:
+7
+
+CONFIDENCE:
+LOW
+
+PARSE WARNINGS:
+  - Missing Message-ID header
+  - Missing Date header
+
+REPORT DATA SAVED:
+/workspaces/TRACE-X/output/TX-000750/TX-000750.json
+TEXT REPORT SAVED:
+/workspaces/TRACE-X/output/TX-000750/TX-000750.txt
+============================================================

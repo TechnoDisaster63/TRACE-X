@@ -1,0 +1,10 @@
+From: Billing <billing@example.com>
+To: analyst@example.net
+Subject: Invoice status
+Date: Tue, 22 Sep 2026 10:00:00 +0000
+Message-ID: <forged@example.com>
+Received: from trusted.example (trusted.example [203.0.113.10]) by mx.example.net; Tue, 22 Sep 2026 10:00:01 +0000
+Received: from attacker.invalid (attacker.invalid [198.51.100.44]) by trusted.example; Tue, 22 Sep 2026 09:59:59 +0000
+Content-Type: text/plain; charset=utf-8
+
+Please review the attached invoice.

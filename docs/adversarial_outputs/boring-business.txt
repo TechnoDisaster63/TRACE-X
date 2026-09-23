@@ -1,0 +1,37 @@
+============================================================
+TRACE-X EMAIL INVESTIGATION
+============================================================
+
+Investigation ID:
+TX-000752
+
+File:
+boring-business.eml
+
+SHA-256:
+b705bf0c60941f8324dacd0a7376446d4f1f1f8e4fcd495e566147b8b3786825
+
+RISK:
+LOW  (score: 27/100)
+
+THREAT CLASSIFICATION:
+UNKNOWN  (confidence: LOW)
+
+TOP FINDINGS:
+  [MEDIUM] No Received headers present (unusual for delivered mail)
+  [MEDIUM] No Authentication-Results header found
+  [MEDIUM] No Received headers available to reconstruct mail path
+  [INFO] No URLs found in email body
+  [INFO] Advisory ML phishing-language probability
+
+EVIDENCE COUNT:
+5
+
+CONFIDENCE:
+LOW
+
+REPORT DATA SAVED:
+/workspaces/TRACE-X/output/TX-000752/TX-000752.json
+TEXT REPORT SAVED:
+/workspaces/TRACE-X/output/TX-000752/TX-000752.txt
+============================================================

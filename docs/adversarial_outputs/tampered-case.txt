@@ -1,0 +1,4 @@
+INVALID
+  - Size mismatch: TX-000751.txt
+  - SHA-256 mismatch: TX-000751.txt
+EXIT:2
