@@ -16,6 +16,7 @@ Drop in a `.eml`. Get a 0-100 risk score where every point traces back to a piec
 ![Actions](https://img.shields.io/badge/actions-advisory%20only-d7263d?style=flat-square)
 
 Smart India Hackathon 2026 entry · Problem statement **SIH26106** · Team **Zyronith**
+🥉 3rd place, IdeaSense (cash prize)
 
 [Quick start](#quick-start) · [How it works](#how-it-works) · [Modules](#the-20-modules) · [Honesty boundary](#honesty-boundary) · [Validation](#validation) · [Roadmap](#roadmap)
 
