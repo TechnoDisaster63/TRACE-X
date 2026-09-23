@@ -27,7 +27,7 @@ Smart India Hackathon 2026 entry · Problem statement **SIH26106** · Team **Zyr
 
 Most phishing tools give you a verdict. TRACE-X gives you a **case file**.
 
-| | |
+| Principle | What it means |
 |---|---|
 | **Evidence first** | Every finding is a typed evidence record with its source, severity and provenance. The score is computed from those records by fixed rules, so the same email always gets the same score and you can see why. |
 | **Offline by design** | Analysis never visits a URL, never executes an attachment and never calls a cloud service. The console binds to `127.0.0.1` only. |
@@ -93,7 +93,7 @@ Then try the CLI:
 python cli.py analyze test_data/phishing/phishing_paypal_lookalike.eml   # 77 / HIGH
 python cli.py analyze test_data/legitimate/legit_newsletter.eml          # 0 / LOW
 python cli.py campaign test_data/campaign                                # 3-message campaign
-python cli.py verify-audit                                               # check the audit hash chain
+python cli.py verify-audit                                               # audit chain
 ```
 
 <details>
