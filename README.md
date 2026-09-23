@@ -214,4 +214,4 @@ M17 uses the [DB-IP Lite Country](https://db-ip.com/db/download/ip-to-country-li
 
 ## License
 
-No license has been chosen yet. Until a `LICENSE` file is added, all rights are reserved.
+[MIT](LICENSE) © 2026 Sabari T. The bundled DB-IP Lite Country database keeps its own CC BY 4.0 license (see Credits).
