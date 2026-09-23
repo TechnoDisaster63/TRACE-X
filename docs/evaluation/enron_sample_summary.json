@@ -1,0 +1,105 @@
+{
+ "sample_size_requested": 5000,
+ "analyzed": 5000,
+ "errors": 0,
+ "seconds": 921.6,
+ "risk_level_counts": {
+  "MEDIUM": 4996,
+  "HIGH": 4
+ },
+ "threat_class_counts": {
+  "INFRASTRUCTURE_ABUSE": 5000
+ },
+ "score_mean": 30.09,
+ "score_median": 30.0,
+ "score_p95": 30,
+ "score_eq_0": 0,
+ "ml_available": 5000,
+ "ml_ge_0_5": 56,
+ "ml_ge_0_9": 6,
+ "top_findings_all": [
+  [
+   "[LOW] Message-ID domain does not match From domain",
+   5000
+  ],
+  [
+   "[MEDIUM] No Received headers available to reconstruct mail path",
+   5000
+  ],
+  [
+   "[MEDIUM] No Authentication-Results header found",
+   5000
+  ],
+  [
+   "[MEDIUM] No Received headers present (unusual for delivered mail)",
+   5000
+  ],
+  [
+   "[HIGH] Suspicious URL structure detected: Uses insecure HTTP scheme; Host is a raw IP address rather than a domain na",
+   20
+  ],
+  [
+   "[MEDIUM] Suspicious URL structure detected: Uses insecure HTTP scheme; Contains suspicious keyword(s): click",
+   17
+  ],
+  [
+   "[MEDIUM] Suspicious URL structure detected: Uses insecure HTTP scheme; Excessive subdomain count (3)",
+   10
+  ],
+  [
+   "[MEDIUM] Suspicious URL structure detected: Uses insecure HTTP scheme; Contains suspicious keyword(s): login",
+   6
+  ],
+  [
+   "[MEDIUM] Suspicious URL structure detected: Uses insecure HTTP scheme; Contains suspicious keyword(s): update",
+   5
+  ],
+  [
+   "[MEDIUM] Suspicious URL structure detected: Uses insecure HTTP scheme; Contains suspicious keyword(s): account",
+   5
+  ],
+  [
+   "[MEDIUM] Suspicious URL structure detected: Uses insecure HTTP scheme; Contains suspicious keyword(s): secure",
+   2
+  ],
+  [
+   "[MEDIUM] Suspicious URL structure detected: Uses insecure HTTP scheme; Unusually long URL (122 characters)",
+   2
+  ],
+  [
+   "[MEDIUM] Suspicious URL structure detected: Uses insecure HTTP scheme; Contains suspicious keyword(s): account, update",
+   2
+  ],
+  [
+   "[MEDIUM] Suspicious URL structure detected: Uses insecure HTTP scheme; Contains suspicious keyword(s): click, update",
+   1
+  ],
+  [
+   "[MEDIUM] Suspicious URL structure detected: Uses insecure HTTP scheme; Unusually long URL (123 characters)",
+   1
+  ]
+ ],
+ "top_findings_in_high": [
+  [
+   "[MEDIUM] No Authentication-Results header found",
+   4
+  ],
+  [
+   "[MEDIUM] No Received headers present (unusual for delivered mail)",
+   4
+  ],
+  [
+   "[LOW] Message-ID domain does not match From domain",
+   4
+  ],
+  [
+   "[MEDIUM] No Received headers available to reconstruct mail path",
+   4
+  ],
+  [
+   "[HIGH] Suspicious URL structure detected: Uses insecure HTTP scheme; Host is a raw IP address rather than a domain na",
+   4
+  ]
+ ],
+ "error_examples": []
+}
