@@ -68,6 +68,19 @@ START-TRACE-X.bat test
 
 The same entry points run on Linux/macOS after installing both `requirements.txt` and `requirements-ml.txt` in a virtual environment.
 
+## Durable offline investigation controls
+
+TRACE-X now keeps a local SQLite case index and a hash-chained append-only audit journal when analyses run through the CLI or console. Each audit entry binds the actor, action, case ID and input SHA-256 to the previous entry hash. This is a tamper-evident offline ledger, not a distributed blockchain and not a legal chain-of-custody attestation.
+
+```bash
+python cli.py analyze suspicious.eml --actor analyst-01
+python cli.py verify-audit
+python cli.py correlate-history
+python cli.py watch-folder incoming_eml --actor ingest-01
+```
+
+`watch-folder` polls a local directory and analyzes each observed `.eml` once per running session. It is a local ingestion adapter, not a mail gateway or SIEM connector. Persistent correlation operates only over cases stored in the configured local SQLite database. See `docs/M18_DATASET_CARD.md` for the honest modern-evaluation plan; no new M18 score is claimed.
+
 ## Demonstrated behavior
 
 - PayPal look-alike scenario: deterministic **77/HIGH**; M18 separately reports an advisory probability and exact driving tokens.

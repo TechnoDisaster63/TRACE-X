@@ -7,3 +7,7 @@ output/*
 !output/.gitkeep
 reports/*
 !reports/.gitkeep
+*.sqlite3
+*.sqlite3-wal
+*.sqlite3-shm
+audit-chain.jsonl
