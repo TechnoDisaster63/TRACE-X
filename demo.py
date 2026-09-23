@@ -219,7 +219,7 @@ def main() -> None:
     server = ThreadingHTTPServer((args.host, args.port), DemoHandler)
     url = f"http://127.0.0.1:{server.server_port}/"
     print(f"TRACE-X offline demo: {url}", flush=True)
-    print("Loopback-only. No URL visits, attachment execution, cloud service, API, or database.", flush=True)
+    print("Loopback-only. No URL visits, attachment execution, cloud service or external API. Cases are indexed in a local SQLite file only.", flush=True)
     print("M17 geo intelligence and the M18 advisory ML signal run fully offline; neither changes the deterministic score.", flush=True)
     if not args.no_browser: webbrowser.open(url)
     try: server.serve_forever()
