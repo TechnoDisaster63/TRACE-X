@@ -9,7 +9,7 @@
 **Offline email forensics for analysts who have to explain their verdict.**
 Drop in a `.eml`. Get a 0-100 risk score where every point traces back to a piece of evidence - and a tool that tells you plainly what it did not check.
 
-![Tests](https://img.shields.io/badge/tests-335%20passing-2ea44f?style=flat-square)
+![Tests](https://img.shields.io/badge/tests-339%20passing-2ea44f?style=flat-square)
 ![Python](https://img.shields.io/badge/python-3.11-0b1d38?style=flat-square&logo=python&logoColor=white)
 ![Modules](https://img.shields.io/badge/modules-20%20implemented-c6ff3a?style=flat-square&labelColor=0b1d38)
 ![Network](https://img.shields.io/badge/analysis-fully%20offline-0b1d38?style=flat-square)
@@ -84,7 +84,7 @@ cd TRACE-X
 python -m venv .venv
 source .venv/bin/activate          # Windows: .\.venv\Scripts\Activate.ps1
 pip install -r requirements.txt -r requirements-ml.txt
-python -m pytest -q                # expect: 335 passed
+python -m pytest -q                # expect: 339 passed
 python demo.py                     # console on http://127.0.0.1:8765/
 ```
 
@@ -174,10 +174,10 @@ These are design rules, not fine print.
 
 ## Validation
 
-- **335 tests passing** on `main` (commit `d6c7a68`, 2026-09-23). CI runs the full suite on Python 3.11 with hash-locked dependencies on every pull request and every push to `main`.
+- **339 tests passing** on `main` (commit `55b883a`, 2026-09-23). CI runs the full suite on Python 3.11 with hash-locked dependencies on every pull request and every push to `main`.
 - Coverage includes every implemented module, the local console, verified ZIP export, unsafe and unknown export IDs, malformed input, safety invariants and integration scenarios.
 - Bundled fixtures are **synthetic**: legitimate, phishing, BEC, look-alike, malformed and a three-message campaign.
-- **Enron false-alarm check:** on a seeded random sample of 5,000 legitimate Enron messages (CMU 2015 release), 4 (0.08%) reached HIGH risk. The release has no `Received` or `Authentication-Results` headers, so every message scores MEDIUM (30) on missing-header findings, and header forensics could not be tested there. This is not a phishing-detection result. Method, raw counts and a known weakness it exposed: [`docs/evaluation/ENRON_FALSE_POSITIVE.md`](docs/evaluation/ENRON_FALSE_POSITIVE.md).
+- **Enron false-alarm check:** on a seeded random sample of 5,000 legitimate Enron messages (CMU 2015 release), 4 (0.08%) reached HIGH risk. The release has no `Received` or `Authentication-Results` headers, so every message scores MEDIUM (30) on missing-header findings, and header forensics could not be tested there. This is not a phishing-detection result. It also exposed a classification bug (legitimate mail without delivery headers labelled `INFRASTRUCTURE_ABUSE`), fixed in #35. Method and raw counts: [`docs/evaluation/ENRON_FALSE_POSITIVE.md`](docs/evaluation/ENRON_FALSE_POSITIVE.md).
 
 ### M18 model: what the numbers do and don't mean
 
@@ -188,7 +188,6 @@ That is a result **on old, clean corpora**. It is not field accuracy and says no
 ## Roadmap
 
 - **Modern M18 evaluation** - locked 2025-26 challenge set, source-disjoint splits, confidence intervals. See the dataset card.
-- **Classification fix:** stop `INFRASTRUCTURE_ABUSE` firing on legitimate mail that simply lacks delivery headers (found by the Enron check).
 - **False-alarm test on mail with full headers**, so header forensics is measured too.
 - Live action adapters (M15) stay out of scope until there is a human-approval design worth shipping.
 

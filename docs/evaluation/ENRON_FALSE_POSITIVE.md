@@ -34,7 +34,7 @@ What this means:
 
 - Header forensics (M02-M05) **could not be tested** on this corpus. The MEDIUM rate reflects missing headers, not TRACE-X judging Enron mail suspicious.
 - The HIGH rate tests the URL and content signals only.
-- **Known weakness found:** every sampled message was classified `INFRASTRUCTURE_ABUSE`. That class should not fire just because headers are missing. This is recorded here and not yet fixed.
+- **Known weakness found:** every sampled message was classified `INFRASTRUCTURE_ABUSE`. That class should not fire just because headers are missing. Fixed in #35: missing `Received` headers now map to a separate `RECEIVED_CHAIN_MISSING` signal, so these messages are classified `UNKNOWN` instead. Scores are unchanged. The counts above are from the run before the fix.
 
 ## Reproduce
 
