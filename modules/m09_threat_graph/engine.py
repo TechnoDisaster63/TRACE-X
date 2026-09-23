@@ -50,8 +50,8 @@ SOURCE_TO_SIGNAL: Dict[str, str] = {
     "header:date_malformed": "HEADER_ANOMALY",
     "header:from_missing": "HEADER_ANOMALY",
     "header:date_missing": "HEADER_ANOMALY",
-    "header:received_missing": "RECEIVED_CHAIN_ANOMALY",
-    "received:no_hops": "RECEIVED_CHAIN_ANOMALY",
+    "header:received_missing": "RECEIVED_CHAIN_MISSING",
+    "received:no_hops": "RECEIVED_CHAIN_MISSING",
     "received:earliest_hop_uncertain": "RECEIVED_CHAIN_ANOMALY",
     "received:private_ip_as_origin": "RECEIVED_CHAIN_ANOMALY",
     "received:excessive_hops": "RECEIVED_CHAIN_ANOMALY",
@@ -71,6 +71,7 @@ NODE_TYPE_FOR_SIGNAL: Dict[str, str] = {
     "AUTH_MISSING": "INFRASTRUCTURE",
     "HEADER_ANOMALY": "INFRASTRUCTURE",
     "RECEIVED_CHAIN_ANOMALY": "INFRASTRUCTURE",
+    "RECEIVED_CHAIN_MISSING": "INFRASTRUCTURE",
 }
 
 EDGE_TYPE_FOR_SIGNAL: Dict[str, str] = {
@@ -87,6 +88,7 @@ EDGE_TYPE_FOR_SIGNAL: Dict[str, str] = {
     "AUTH_MISSING": "ASSOCIATED_WITH",
     "HEADER_ANOMALY": "ASSOCIATED_WITH",
     "RECEIVED_CHAIN_ANOMALY": "SENDS_FROM",
+    "RECEIVED_CHAIN_MISSING": "ASSOCIATED_WITH",
 }
 
 NODE_LABELS: Dict[str, str] = {
@@ -103,6 +105,8 @@ NODE_LABELS: Dict[str, str] = {
     "AUTH_MISSING": "Authentication Data Missing",
     "HEADER_ANOMALY": "Header Anomaly",
     "RECEIVED_CHAIN_ANOMALY": "Received-Chain Anomaly",
+    # Absence of Received headers is missing data, not evidence of abusive routing.
+    "RECEIVED_CHAIN_MISSING": "Received Chain Missing",
 }
 
 
