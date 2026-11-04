@@ -1,0 +1,43 @@
+From: sender@example.org
+To: analyst@example.org
+Subject: Synthetic offline fixture
+Date: Wed, 04 Nov 2026 12:00:00 +0000
+Message-ID: <opaque_clean@example.org>
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="trace-x-research-opaque_clean"
+
+--trace-x-research-opaque_clean
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+
+See the local attachment.
+
+--trace-x-research-opaque_clean
+Content-Type: image/png
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="opaque_clean.png"
+MIME-Version: 1.0
+
+iVBORw0KGgoAAAANSUhEUgAAAN4AAADeCAIAAADdBSngAAAEbElEQVR4nO3dS47bMBQAwTjI/a/s
+HEBZEAQ/PUrVOrbsTIPAsyTq8/1+f0HP79sfAP5NmkRJkyhpEiVNoqRJlDSJkiZR0iRKmkRJkyhp
+EiVNoqRJlDSJkiZR0iRKmkRJkyhpEiVNoqRJlDSJ+rPqjT6fz6q3mjByN/2+T3jy6He/6YhVOxtY
+NYmSJlHSJEqaREmTqGUT+tO+PehGJtCRf7PqE96diEfc/VvMsWoSJU2ipEmUNImSJlEbJ/SnuWlu
+brp8vmrVXL/q6Pv+zYiTf4s5Vk2ipEmUNImSJlHSJOrohN636hryu3P0O1g1iZImUdIkSppESZOo
+107oJ+86XzWPzx39rayaREmTKGkSJU2ipEnU0Qn95HS56ir32nXmq47en/StmkRJkyhpEiVNoqRJ
+1MYJ/e4V2ifv+777b0b8xKvlrZpESZMoaRIlTaKkSdSnfy51n7n93ve9as5b/4JWTaKkSZQ0iZIm
+UdIkatmEXjvXfNLdmX3VNfZzu+Tt+5+3ahIlTaKkSZQ0iZImUZcn9KeTn2ffq57uPnv95Hdf9U2t
+mkRJkyhpEiVNoqRJ1MYJfcSq+XfO3el732x79553EzovJ02ipEmUNImSJlHLdorbt3f6yLHm3vnu
+0Ues+oR332eOVZMoaRIlTaKkSZQ0ico9bW3VXH/yCWhP+85H77uiwFXuMESaREmTKGkSJU2ijk7o
+T/vm1n17sNfuuB+x6lgnfzGwahIlTaKkSZQ0iZImUcsm9P5e7nPT99z7jFh19vnkvfwnn6tu1SRK
+mkRJkyhpEiVNoo7uFFeb2Z9qV7mPvPOcfX+vVayaREmTKGkSJU2ipEnUsgl96GCx/cNXXYte+3Vi
+5OhPtav3rZpESZMoaRIlTaKkSVTuPvSTvxg83T1rvO8XjDl3P49VkyhpEiVNoqRJlDSJOnof+tPJ
+a9FH9nvf94S4VVZ95pF3nnufVayaREmTKGkSJU2ipElU7nnoq46172z4vmeQ7dt/fu5V+35jGWHV
+JEqaREmTKGkSJU2iNu4Ud3dPs9qx+mex795f8GTVJEqaREmTKGkSJU2iNp5Dv/vOJ3dl33d39t1f
+DE7u2vdk1SRKmkRJkyhpEiVNojbeh37SyD3mI0aekH5397YRc9cz1L6pVZMoaRIlTaKkSZQ0idq4
+l/vJPc/nXjW3d9y+e8Nrzzu7y6pJlDSJkiZR0iRKmkQdfdpa7Vnn++4Nv/tMtDn79s2bY9UkSppE
+SZMoaRIlTaIuPw99n9oZ/J+4v9zd58pZNYmSJlHSJEqaREmTqNdO6P3nlNWebnbyW4ywahIlTaKk
+SZQ0iZImUUcn9JNnYFfdUb7qWKvOdK968nttHn+yahIlTaKkSZQ0iZImURsn9Ls7nO+bkUfs2+Gt
+tlOcc+j8d6RJlDSJkiZR0iTq8459v3kfqyZR0iRKmkRJkyhpEiVNoqRJlDSJkiZR0iRKmkRJkyhp
+EiVNoqRJlDSJkiZR0iRKmkRJkyhpEiVNoqRJ1F+DBDvvUPt3twAAAABJRU5ErkJggg==
+
+--trace-x-research-opaque_clean--

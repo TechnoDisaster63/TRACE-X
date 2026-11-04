@@ -1,0 +1,10 @@
+# Optional M22 offline QR evidence runtime (opt-in via CLI --qr-evidence or
+# analyze_email(..., enable_qr_evidence=True)). Exact pins; licences verified
+# permissive for MIT distribution (docs/licenses/QR_EVIDENCE_RUNTIME.md).
+# numpy is already a pinned CI dependency; pymupdf must NOT be installed
+# (AGPL/commercial) - PDF rendering uses pypdfium2 (PDFium, BSD-3-Clause).
+pypdf==6.21.2
+pypdfium2==5.14.0
+opencv-python-headless==5.0.0.93
+pillow==12.3.0
+numpy==2.2.6

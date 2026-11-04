@@ -1,8 +1,8 @@
 # TRACE-X implementation status
 
 **Validated:** 2026-09-23 (main 55b883a)
-**Current suite:** 339 passed, 0 failed
-**Implemented:** 20 modules - M01-M14 + M16-M21 (M19 audit chain, M20 local SQLite case store, M21 folder ingest)
+**Current suite:** 376 passed, 0 failed
+**Implemented:** 21 modules - M01-M14 + M16-M22 (M19 audit chain, M20 local SQLite case store, M21 folder ingest, M22 opt-in offline QR evidence)
 
 ## Working now
 
@@ -40,4 +40,4 @@ M15; automatic block/quarantine/delete/delivery/payment; mailbox or gateway conn
 - Evidence-labeled hackathon demo: ready
 - Production or live integration: not ready / not implemented
 
-Historical 159, 164, 294, 297, 300, 328, 329 and 330-test results are milestones only. The current count is 339.
+Historical 159, 164, 294, 297, 300, 328, 329, 330 and 339-test results are milestones only. The current count is 376.

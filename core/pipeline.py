@@ -3,7 +3,7 @@ core/pipeline.py
 
 Wires M01 -> M02 -> M03 -> M04 -> M05 -> M06 -> M17 -> M18 -> M07 -> M08 ->
 M09 -> M10 -> M11 into a single analyze_email() call (M12/M13/M14/M16 are
-invoked through the CLI around this core flow). This is the integration
+invoked through the CLI around this core flow; M22 QR evidence is opt-in). This is the integration
 layer that runs the full prototype end-to-end. No frontend, no API, no DB.
 """
 import json
@@ -22,6 +22,7 @@ from modules.m05_received_chain.analyzer import analyze_received_chain
 from modules.m06_url_analyzer.analyzer import analyze_urls
 from modules.m17_geo_infra_intel.engine import analyze_geo_infrastructure
 from modules.m18_ml_phishing_signal.engine import analyze_ml_phishing_signal
+from modules.m22_qr_evidence.engine import analyze_qr_evidence
 from modules.m07_evidence_engine.engine import build_evidence_bundle
 from modules.m08_risk_engine.engine import compute_risk
 from modules.m09_threat_graph.engine import build_threat_graph, correlate_campaign, build_sender_trust_graph
@@ -38,10 +39,15 @@ def analyze_email(
     trusted_authserv_ids: Optional[List[str]] = None,
     policies: Optional[List[dict]] = None,
     feedback_records: Optional[List[dict]] = None,
+    enable_qr_evidence: bool = False,
 ) -> dict:
     """
     Run the full M01-M11 + M17 + M18 pipeline against a single .eml file.
     Returns a single JSON-serializable investigation result.
+
+    M22 QR evidence is opt-in: it runs only when enable_qr_evidence=True,
+    needs its own optional runtime (requirements-qr.txt), and never changes
+    the deterministic score (all findings are INFO-level advisory evidence).
 
     A single, unique investigation_id is generated once here and
     propagated unchanged through every module (M01-M11, M17, M18) and into
@@ -61,13 +67,16 @@ def analyze_email(
     body_text = "\n".join([parsed.subject or "", parsed.body_plain or "", parsed.body_html_text or ""])
     ml_result = analyze_ml_phishing_signal(body_text)
     sensitive_request = bool(similarity_matches(body_text))
+    qr_result = analyze_qr_evidence(path) if enable_qr_evidence else None
     trust_graph_result = build_sender_trust_graph(
         feedback_records or [], parsed.from_, content_signal_present=sensitive_request
     )
 
     evidence_bundle = build_evidence_bundle(
         header_result, auth_result, identity_result, received_result, url_result,
-        geo_result=geo_result, extra_results={"trust_graph": trust_graph_result, "ml_phishing_signal": ml_result}
+        geo_result=geo_result,
+        extra_results={"trust_graph": trust_graph_result, "ml_phishing_signal": ml_result,
+                       **({"qr_evidence": qr_result} if qr_result is not None else {})},
     )
     risk_result = compute_risk(evidence_bundle)
     threat_graph = build_threat_graph(evidence_bundle, risk_result, email_id=parsed.from_)
@@ -90,7 +99,8 @@ def analyze_email(
 
     result = {
         "investigation_id": investigation_id,
-        "analysis_configuration": {"trusted_domains": sorted(trusted_domains or []), "trusted_authserv_ids": sorted(trusted_authserv_ids or []), "policy_count": len(policies or [])},
+        "analysis_configuration": {"trusted_domains": sorted(trusted_domains or []), "trusted_authserv_ids": sorted(trusted_authserv_ids or []), "policy_count": len(policies or []),
+                                   **({"qr_evidence": "ENABLED_OPT_IN"} if qr_result is not None else {})},
         "file": parsed.source_filename or os.path.basename(str(path)),
         "file_sha256": parsed.file_sha256,
         "parse_warnings": parsed.parse_warnings,
@@ -106,6 +116,7 @@ def analyze_email(
         "received_chain": received_result,
         "geo_infrastructure": geo_result,
         "ml_phishing_signal": ml_result,
+        **({"qr_evidence": qr_result} if qr_result is not None else {}),
         "sender_trust_graph": trust_graph_result,
         "url_analysis": url_result,
         "evidence": evidence_bundle,
@@ -140,6 +151,7 @@ def analyze_campaign(
     trusted_domains: Optional[List[str]] = None,
     trusted_authserv_ids: Optional[List[str]] = None,
     policies: Optional[List[dict]] = None,
+    enable_qr_evidence: bool = False,
 ) -> dict:
     """
     Analyze multiple .eml files individually (each gets its own unique
@@ -162,6 +174,7 @@ def analyze_campaign(
             trusted_domains=trusted_domains,
             trusted_authserv_ids=trusted_authserv_ids,
             policies=policies,
+            enable_qr_evidence=enable_qr_evidence,
         )
         for p in paths
     ]

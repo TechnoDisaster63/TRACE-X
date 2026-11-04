@@ -1,0 +1,43 @@
+From: sender@example.org
+To: analyst@example.org
+Subject: Synthetic offline fixture
+Date: Wed, 04 Nov 2026 12:00:00 +0000
+Message-ID: <structural_clean@example.org>
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="trace-x-research-structural_clean"
+
+--trace-x-research-structural_clean
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+
+See the local attachment.
+
+--trace-x-research-structural_clean
+Content-Type: image/png
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="structural_clean.png"
+MIME-Version: 1.0
+
+iVBORw0KGgoAAAANSUhEUgAAAN4AAADeCAIAAADdBSngAAAEUklEQVR4nO3dwWrkOBRA0ckw///L
+6W2DZ2HEk3QrOWfdcYXORfDKlvX1/f39D/T8e/sXgP8nTaKkSZQ0iZImUdIkSppESZMoaRIlTaKk
+SZQ0iZImUdIkSppESZMoaRIlTaKkSZQ0iZImUdIkSppE/Td1oa+vr6lLLXizm/75G07twV+78tT/
+2POz+n+LN6yaREmTKGkSJU2ipEnU2IT+tO8ddG8m0LV/c3LSX5uspz5ryr5vA6yaREmTKGkSJU2i
+pEnUxgn9aW2a2zf/7puR16b4k3fDT/4t1lg1iZImUdIkSppESZOooxN6zdo8/mb6nvp+4DefhWfV
+JEqaREmTKGkSJU2ifuyEvu9u+D5m9r9ZNYmSJlHSJEqaREmTqKMT+snp8hOfRd+3d/6pP+lbNYmS
+JlHSJEqaREmTqI0T+t03it+9+zw1xU9d5+7fYo1VkyhpEiVNoqRJlDSJ+urfSz1paq6f2nXuKXfI
+kSZR0iRKmkRJk6ixCf3kTFo7f/yNqbfS7ft97p4p/2TVJEqaREmTKGkSJU2iNt5D3zddrjk5I+87
+y2zf9wy1md2qSZQ0iZImUdIkSppEje1DnzptvP98+Ml5fO3Tpybru7vXrZpESZMoaRIlTaKkSdTR
+p9xPujuB1t4Ut3blu/virZpESZMoaRIlTaKkSdRHnod+967xm586Oe3evfftKXd+HWkSJU2ipEmU
+NIkam9BP3jVeO7X86RPv+5909zkEqyZR0iRKmkRJkyhpEpXbhz71WW9+6uSnT5m6z772b07enbdq
+EiVNoqRJlDSJkiZRl59yv/uGt33XOXnff83Um/btQ+fXkSZR0iRKmkRJk6iNT7lPOXlqW21veO0U
+9Sf70Pl1pEmUNImSJlHSJGrjeehT9r3hbe3T31z57u/zxr5365nQ+eGkSZQ0iZImUdIk6ug+9LWf
+mjoXbM0n7nCfmv3vviXeqkmUNImSJlHSJEqaRG28h37ytPGTn/7G3dn2DeehwyJpEiVNoqRJlDSJ
+GpvQT85u+2bJfW+Jv/skwBu1/Q5WTaKkSZQ0iZImUdIk6gPeFHf3s2pnlD/t288+daL9GqsmUdIk
+SppESZMoaRK1cR/6SW92rz9NvV+9NrPve37APnSQJlXSJEqaREmTqI3nodd2uN997v3kqW37/udP
+fhdh1SRKmkRJkyhpEiVNojZO6E8nn5r+xMl6zcn72t4UB9KkSppESZMoaRJ1dEI/6eQ8/ubKT/ve
+lL7vCX/30EGaVEmTKGkSJU2ifuyEPvU0+N1d53f3ht89f82qSZQ0iZImUdIkSppE/djT1qauvOYT
+z01zHjq8Ik2ipEmUNImSJlEb76Hffbv72iw5NdvePSH9Z3xbYtUkSppESZMoaRIlTaLG7qHDLKsm
+UdIkSppESZMoaRIlTaKkSZQ0iZImUdIkSppESZMoaRIlTaKkSZQ0iZImUdIkSppESZMoaRIlTaKk
+SdQfvWI1xfbaPpQAAAAASUVORK5CYII=
+
+--trace-x-research-structural_clean--

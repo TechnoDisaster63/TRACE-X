@@ -1,0 +1,44 @@
+From: sender@example.org
+To: analyst@example.org
+Subject: Synthetic offline fixture
+Date: Wed, 04 Nov 2026 12:00:00 +0000
+Message-ID: <structural_lowcontrast@example.org>
+MIME-Version: 1.0
+Content-Type: multipart/mixed;
+ boundary="trace-x-research-structural_lowcontrast"
+
+--trace-x-research-structural_lowcontrast
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+
+See the local attachment.
+
+--trace-x-research-structural_lowcontrast
+Content-Type: image/png
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="structural_lowcontrast.png"
+MIME-Version: 1.0
+
+iVBORw0KGgoAAAANSUhEUgAAAN4AAADeCAIAAADdBSngAAAEc0lEQVR4nO3d22krSRRA0evLxOL8
+A1AkjmZ+B9owRVGPLXutb6slrE3BUT/q4/V6/YGev7c/AHxPmkRJkyhpEiVNoqRJlDSJkiZR0iRK
+mkRJkyhpEiVNoqRJlDSJkiZR0iRKmkRJkyhpEiVNoqRJlDSJ+mfVgb6+vlYdasLn5+f//s3zE468
+asTckVf9x57v1f8uRlg1iZImUdIkSppESZOoZRP606pJ7WlkAp37m5OT/txkveq9Vtn3a4BVkyhp
+EiVNoqRJlDSJ2jihP81Nc/vm330z8twUf/Js+MnvYo5VkyhpEiVNoqRJlDSJOjqh18zN4yPT96rf
+B05OxDVWTaKkSZQ0iZImUdIk6sdO6PvOhu9jZv8vqyZR0iRKmkRJkyhpEnV0Qj85Xb7jtej77p1/
+6k/6Vk2ipEmUNImSJlHSJGrjhH73ieJ3zz6vmuJXHefudzHHqkmUNImSJlHSJEqaRH28Xq/bnyFk
+1Vy/6q5zV7lDjjSJkiZR0iRKmkRt3A9930x6cv/x/pXw+35D2PfuI6yaREmTKGkSJU2ipEnUxnPo
++3b3nrPqye2rXjVynKdVk/6+3z1WfadWTaKkSZQ0iZImUdIk6vI59FXHOXl9+Ml5fO7dV03Wd+9e
+t2oSJU2ipEmUNImSJlHLzqHX7pi+O4HWnhQ3d+S798VbNYmSJlHSJEqaREmTqLfcD/3uWeORV52c
+du+e+3aVO7+ONImSJlHSJEqaRC2b0E+eNZ57VtvTO573P+nudQhWTaKkSZQ0iZImUdIkKncf+qr3
+GnnVyXdfZdV59rm/OXl23qpJlDSJkiZR0iRKmkRdvsr97hPe9h3n5Hn/OauetO8+dH4daRIlTaKk
+SZQ0idp4lfsqJ3dtq90bfnKHuDnuQ+fXkSZR0iRKmkRJk6iN+6Gvsu8Jb3PvPnLku59nxL5n65nQ
++eGkSZQ0iZImUdIk6uh96HOvWrUv2Jx3vMN91ex/9ynxVk2ipEmUNImSJlHSJGrjOfSTu42ffPcR
+d2fbEfZDh0nSJEqaREmTKGkStWxCPzm77Zsl9z0l/u6VACPu7uz2ZNUkSppESZMoaRIlTaLe4Elx
+d9+rtkf507772VftaD/HqkmUNImSJlHSJEqaRG28D/2kkbvXn1Y9X702s++7fsB96CBNqqRJlDSJ
+kiZRG/dDv7v/2sirTl73fnLXtn3/+ZO/RVg1iZImUdIkSppESZOojRP608mrpt9xsp5z8ry2J8WB
+NKmSJlHSJEqaRB2d0E86OY+PHPlp35PS913h7xw6SJMqaRIlTaKkSdSPndBXXQ1+967zu/eG391/
+zapJlDSJkiZR0iRKmkQdndD7z3tf9YTzkUl21d30c+yHDpOkSZQ0iZImUdIkauOEfvfp7nOz5Kq5
+/u4O6bW96edYNYmSJlHSJEqaREmTqI/X63X7M8A3rJpESZMoaRIlTaKkSZQ0iZImUdIkSppESZMo
+aRIlTaKkSZQ0iZImUdIkSppESZMoaRIlTaKkSZQ0iZImUf8CEAoaTQXnxtAAAAAASUVORK5CYII=
+
+--trace-x-research-structural_lowcontrast--
