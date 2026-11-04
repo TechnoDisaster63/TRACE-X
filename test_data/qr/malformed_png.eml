@@ -1,0 +1,23 @@
+From: sender@example.org
+To: analyst@example.org
+Subject: Synthetic offline fixture
+Date: Wed, 04 Nov 2026 12:00:00 +0000
+Message-ID: <malformed_png@example.org>
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="trace-x-research-malformed_png"
+
+--trace-x-research-malformed_png
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+
+See the local attachment.
+
+--trace-x-research-malformed_png
+Content-Type: image/png
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="malformed_png.png"
+MIME-Version: 1.0
+
+bm90IGFuIGltYWdl
+
+--trace-x-research-malformed_png--

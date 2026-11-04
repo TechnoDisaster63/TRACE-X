@@ -1,0 +1,40 @@
+From: sender@example.org
+To: analyst@example.org
+Subject: Synthetic offline fixture
+Date: Wed, 04 Nov 2026 12:00:00 +0000
+Message-ID: <ordinary_clean@example.org>
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="trace-x-research-ordinary_clean"
+
+--trace-x-research-ordinary_clean
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+
+See the local attachment.
+
+--trace-x-research-ordinary_clean
+Content-Type: image/png
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="ordinary_clean.png"
+MIME-Version: 1.0
+
+iVBORw0KGgoAAAANSUhEUgAAAMYAAADGCAIAAAAG+WgKAAADpklEQVR4nO3dy4rcMBBA0XTI///y
+ZBvwRoirst05Z92PmeYiKCxbn5+fn1/Q+X33H8C3kRQxSRGTFDFJEZMUMUkRkxQxSRGTFDFJEZMU
+MUkRkxQxSRGTFDFJEZMUMUkRkxQxSRGTFDFJEftTfdDn86k+asP1bsTr37P3mqu9d6142m+4xypF
+TFLEJEVMUsQkRSyb+K7OPRNmZTJa+faVGbCyNyfe+xvusUoRkxQxSRGTFDFJETs48V3tTRl7U8/e
+Nb49K99173XAySeyWqWISYqYpIhJipikiI1OfJP25ru9XZ0rr/l/TsGwShGTFDFJEZMUMUkR+9qJ
+b0911e//me+urFLEJEVMUsQkRUxSxEYnvsk56Nzs9h3PVznHKkVMUsQkRUxSxCRF7ODEd+9kdHXu
+eZ7n9nk+7TdcYZUiJilikiImKWKSIvZ5/jWjSjW7VVf9vvWXt0oRkxQxSRGTFDFJETt4Hl91/t3K
+d13tPS2zmsKqqfDciYHnni1jlSImKWKSIiYpYpIilk18k3smq/2Q9/7Nk2dDTO4OtUoRkxQxSRGT
+FDFJEbv5Gt+KagY89zmVybMhnMDOa0iKmKSISYqYpIgdvI/v3Pl3k7Pk3rvOXamc3J+5xypFTFLE
+JEVMUsQkRWz0Gt/Ku66edj/gymuqu/ZWVP+7+/h4KEkRkxQxSRGTFLGD9/FdPf988+q629O4j48X
+kxQxSRGTFDFJEct2dU7uqzz3OZOfvPftV/deJ72yShGTFDFJEZMUMUkRGz2Pb/IaX7Vjc4WT/v5l
+lSImKWKSIiYpYpIidvA+vqvJ57TsvevcSX8rzs13kztRrVLEJEVMUsQkRUxSxEav8U269+mdK3/P
+vU9csauT15AUMUkRkxQxSREbvcZ3zuQTNSfPs3jjPG6VIiYpYpIiJilikiKWTXxXTzvpr9rVueJp
+s+Tkd1mliEmKmKSISYqYpIgdnPiunjYHTZ4oMfnJK99l4uM1JEVMUsQkRUxSxEYnvjfam4zO3dk3
+eaVyj1WKmKSISYqYpIhJitjXTnx7U8+556Ls2ZvvVna0enILryEpYpIiJilikiI2OvG98T61yf2Q
+53a9Tv7yVilikiImKWKSIiYpYgcnvnv3FlYn65075WHvNVeT71phlSImKWKSIiYpYpIi9rXn8XEX
+qxQxSRGTFDFJEZMUMUkRkxQxSRGTFDFJEZMUMUkRkxQxSRGTFDFJEZMUMUkRkxQxSRGTFDFJEZMU
+sb8Y8pCi6EpohQAAAABJRU5ErkJggg==
+
+--trace-x-research-ordinary_clean--

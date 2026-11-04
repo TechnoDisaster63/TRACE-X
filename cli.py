@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-TRACE-X CLI Prototype (M01-M14 + M16 + M17 + M18)
+TRACE-X CLI Prototype (M01-M14 + M16 + M17 + M18, opt-in M22 QR evidence)
 
 Usage:
     python cli.py analyze <path/to/email.eml>
@@ -73,6 +73,7 @@ def cmd_analyze(args):
         args.path,
         trusted_domains=args.trusted_domains or [],
         trusted_authserv_ids=args.trusted_authserv_ids or [],
+        enable_qr_evidence=args.qr_evidence,
     )
     case = save_case(result)
     CaseStore(args.case_db).add(result)
@@ -100,6 +101,7 @@ def cmd_analyze_folder(args):
                 path,
                 trusted_domains=args.trusted_domains or [],
                 trusted_authserv_ids=args.trusted_authserv_ids or [],
+                enable_qr_evidence=args.qr_evidence,
             )
             save_case(result)
             _print_result(result)
@@ -218,12 +220,16 @@ def main():
     p_analyze.add_argument("--actor", default=os.environ.get("TRACE_X_ACTOR", "LOCAL_ANALYST"))
     p_analyze.add_argument("--audit-log", default=os.environ.get("TRACE_X_AUDIT_LOG", "output/audit-chain.jsonl"), dest="audit_log")
     p_analyze.add_argument("--case-db", default=os.environ.get("TRACE_X_CASE_DB", "output/cases.sqlite3"), dest="case_db")
+    p_analyze.add_argument("--qr-evidence", action="store_true", dest="qr_evidence",
+                            help="Opt-in M22: recover QR payloads from image/PDF attachments as INFO-level advisory evidence (needs requirements-qr.txt runtime)")
     p_analyze.set_defaults(func=cmd_analyze)
 
     p_folder = sub.add_parser("analyze-folder", help="Analyze all .eml files in a folder")
     p_folder.add_argument("folder", help="Path to folder containing .eml files")
     p_folder.add_argument("--trusted-domains", nargs="*", default=[], dest="trusted_domains")
     p_folder.add_argument("--trusted-authserv-ids", nargs="*", default=[], dest="trusted_authserv_ids")
+    p_folder.add_argument("--qr-evidence", action="store_true", dest="qr_evidence",
+                            help="Opt-in M22 QR evidence extraction for every analyzed file")
     p_folder.set_defaults(func=cmd_analyze_folder)
 
     p_campaign = sub.add_parser("campaign", help="Analyze all .eml files in a folder AND correlate them into campaigns")

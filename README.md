@@ -9,7 +9,7 @@
 **Offline email forensics for analysts who have to explain their verdict.**
 Drop in a `.eml`. Get a 0-100 risk score where every point traces back to a piece of evidence - and a tool that tells you plainly what it did not check.
 
-![Tests](https://img.shields.io/badge/tests-339%20passing-2ea44f?style=flat-square)
+![Tests](https://img.shields.io/badge/tests-376%20passing-2ea44f?style=flat-square)
 ![Python](https://img.shields.io/badge/python-3.11-0b1d38?style=flat-square&logo=python&logoColor=white)
 ![Modules](https://img.shields.io/badge/modules-20%20implemented-c6ff3a?style=flat-square&labelColor=0b1d38)
 ![Network](https://img.shields.io/badge/analysis-fully%20offline-0b1d38?style=flat-square)
@@ -84,7 +84,7 @@ cd TRACE-X
 python -m venv .venv
 source .venv/bin/activate          # Windows: .\.venv\Scripts\Activate.ps1
 pip install -r requirements.txt -r requirements-ml.txt
-python -m pytest -q                # expect: 339 passed
+python -m pytest -q                # expect: 376 passed
 python demo.py                     # console on http://127.0.0.1:8765/
 ```
 
@@ -133,7 +133,7 @@ flowchart LR
 
 The score comes from the rule-based evidence. M18 never changes it, and M17 country evidence is INFO-level, which carries 0 points.
 
-## The 20 modules
+## The 21 modules
 
 | # | Module | What it does |
 |---|---|---|
@@ -157,6 +157,7 @@ The score comes from the rule-based evidence. M18 never changes it, and M17 coun
 | M19 | Audit chain | Append-only, hash-chained local audit journal |
 | M20 | Case store | Local SQLite case index for correlation across runs |
 | M21 | Folder ingest | Polls a local folder and analyses new `.eml` files |
+| M22 | QR evidence | Opt-in offline QR payload recovery from image/PDF attachments; INFO-level advisory evidence |
 
 **M15 is intentionally absent.** It would be live action adapters (blocking, quarantining). TRACE-X does not take actions, so there is no M15.
 
@@ -165,7 +166,8 @@ The score comes from the rule-based evidence. M18 never changes it, and M17 coun
 These are design rules, not fine print.
 
 - **Authentication is reported-header analysis.** TRACE-X reads the SPF/DKIM/DMARC results written into the message headers. It does not re-run DNS lookups or verify signatures.
-- **URLs are parsed, never visited.** Attachments are hashed and inspected as metadata, never executed.
+- **URLs are parsed, never visited.** Attachments are hashed and inspected as metadata, never executed. The opt-in M22 module parses image/PDF attachments offline, under measured bounds, to recover QR payloads as evidence; a recovered URL is recorded, never visited.
+- **M22 recovers, it does not judge.** A decoded QR payload is INFO-level advisory evidence, not a detection and never a score input. M22's process bounds limit runaway work; they are not a security sandbox for hostile files.
 - **M17 is infrastructure, not people.** It reports the probable country of a mail server IP. It is not a sender's location and not attribution. No ASN, WHOIS or reputation data.
 - **M18 is advisory.** It never changes the rule score. Its published numbers come from historical corpora (see below), not from current mail.
 - **Recommendations don't execute.** Every recommendation is `executable=false` and needs a human.
@@ -174,7 +176,7 @@ These are design rules, not fine print.
 
 ## Validation
 
-- **339 tests passing** on `main` (commit `55b883a`, 2026-09-23). CI runs the full suite on Python 3.11 with hash-locked dependencies on every pull request and every push to `main`.
+- **376 tests passing** (2026-11-04, after the M22 QR evidence merge; previously 339 at commit `55b883a`, 2026-09-23). CI runs the full suite on Python 3.11 with hash-locked dependencies on every pull request and every push to `main`.
 - Coverage includes every implemented module, the local console, verified ZIP export, unsafe and unknown export IDs, malformed input, safety invariants and integration scenarios.
 - Bundled fixtures are **synthetic**: legitimate, phishing, BEC, look-alike, malformed and a three-message campaign.
 - **Enron false-alarm check:** on a seeded random sample of 5,000 legitimate Enron messages (CMU 2015 release), 4 (0.08%) reached HIGH risk. The release has no `Received` or `Authentication-Results` headers, so every message scores MEDIUM (30) on missing-header findings, and header forensics could not be tested there. This is not a phishing-detection result. It also exposed a classification bug (legitimate mail without delivery headers labelled `INFRASTRUCTURE_ABUSE`), fixed in #35. Method and raw counts: [`docs/evaluation/ENRON_FALSE_POSITIVE.md`](docs/evaluation/ENRON_FALSE_POSITIVE.md).
@@ -188,6 +190,7 @@ That is a result **on old, clean corpora**. It is not field accuracy and says no
 ## Roadmap
 
 - **Modern M18 evaluation** - locked 2025-26 challenge set, source-disjoint splits, confidence intervals. See the dataset card.
+- **M22 follow-ups** - OS-level isolation (container/seccomp) for the attachment worker, and real-mail recovery evaluation once the modern dataset (issue #38) exists.
 - **False-alarm test on mail with full headers**, so header forensics is measured too.
 - Live action adapters (M15) stay out of scope until there is a human-approval design worth shipping.
 

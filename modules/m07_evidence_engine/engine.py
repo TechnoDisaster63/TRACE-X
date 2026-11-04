@@ -11,6 +11,7 @@ MODULE_SOURCE_LABEL = {
     "url_analysis": "M06_URL_ANALYZER", "geo_infra": "M17_GEO_INFRA_INTEL",
     "ml_phishing_signal": "M18_ML_PHISHING_SIGNAL",
     "trust_graph": "M09_TRUST_GRAPH",
+    "qr_evidence": "M22_QR_EVIDENCE",
 }
 
 def reset_counter():
